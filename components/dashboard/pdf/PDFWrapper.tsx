@@ -1,0 +1,68 @@
+import React from 'react';
+import { Font, Document, Page } from '@react-pdf/renderer';
+import { createTw } from 'react-pdf-tailwind';
+
+import ModernLayout from './layouts/ModernLayout';
+import ClassicLayout from './layouts/ClassicLayout';
+import SignatureLayout from './layouts/SignatureLayout';
+import EliteLayout from './layouts/EliteLayout';
+
+// Initialize a base Tailwind instance
+export const tw = createTw({
+  theme: {
+    extend: {
+      colors: {
+        primary: "#ea580c",
+      },
+    },
+  },
+});
+
+interface PDFWrapperProps {
+  data: any;
+  settings: any;
+}
+
+const PDFWrapper = ({ data, settings }: PDFWrapperProps) => {
+  const layout = settings?.pdf?.layout || 'Modern';
+  const accentColor = settings?.pdf?.color || '#ea580c';
+
+  // Memoize the customized tailwind instance
+  const dynamicTw = React.useMemo(() => createTw({
+    theme: {
+      extend: {
+        colors: {
+          brand: accentColor,
+        },
+      },
+    },
+  }), [accentColor]);
+
+  const renderLayout = () => {
+    const props = { data, settings, tw: dynamicTw };
+    switch (layout) {
+      case 'Classic':
+        return <ClassicLayout {...props} />;
+      case 'Signature':
+        return <SignatureLayout {...props} />;
+      case 'Elite':
+        return <EliteLayout {...props} />;
+      case 'Modern':
+      default:
+        return <ModernLayout {...props} />;
+    }
+  };
+
+  const reference = data?.bookingId || data?.reference || (data?.type || 'DOC').toUpperCase();
+  const docTitle = `${reference} - ${(data?.clientName || 'GUEST').toUpperCase()}`;
+
+  return (
+    <Document title={docTitle}>
+      <Page size="A4" style={{ padding: 0 }}>
+        {renderLayout()}
+      </Page>
+    </Document>
+  );
+};
+
+export default PDFWrapper;
