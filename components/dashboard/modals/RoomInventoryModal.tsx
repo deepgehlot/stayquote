@@ -48,6 +48,20 @@ export default function RoomInventoryModal({
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[300] flex items-center justify-center p-4 animate-in fade-in duration-200">
+      <style dangerouslySetInnerHTML={{ __html: `
+        /* Hide spin-buttons for Chrome, Safari, Edge, Opera */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+          -webkit-appearance: none !important;
+          margin: 0 !important;
+        }
+
+        /* Hide spin-buttons for Firefox */
+        input[type="number"] {
+          -moz-appearance: textfield !important;
+          appearance: none !important;
+        }
+      `}} />
       <div 
         className="absolute inset-0" 
         onClick={onClose}

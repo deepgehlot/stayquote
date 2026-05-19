@@ -32,7 +32,7 @@ const ModernLayout = ({ data, settings, tw }: LayoutProps) => {
   const propertyTitle = isPreview
     ? "SHAPESBYTES"
     : settings?.title || "SHAPESBYTES";
-  const brandColor = settings?.pdf?.color || "#000827"; // Dark Navy from screenshot
+  const brandColor = settings?.pdf?.color || settings?.pdfConfig?.color || "#ea580c";
 
   const formatDate = (dateStr: string) => {
     if (!dateStr) return "N/A";

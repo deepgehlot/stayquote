@@ -187,7 +187,7 @@ const PDFPreviewModal = ({ isOpen, onClose, bookingData, settings: propSettings 
 
   const brandColor = settings?.pdf?.color || "#ea580c";
   const propertyTitle = settings?.title || "SHAPESBYTES";
-  const layoutStyle = settings?.pdf?.layout || 'Modern';
+  const layoutStyle = settings?.pdf?.layout || settings?.pdfConfig?.layout || 'Modern';
 
   const formatDate = (dateStr: string) => {
     if (!dateStr) return "N/A";

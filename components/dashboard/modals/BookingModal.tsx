@@ -183,7 +183,7 @@ export default function BookingModal({
         validUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
           .toISOString()
           .split("T")[0],
-        reference: `${type === "reservation" ? reservationPrefix || "SBR" : quotationPrefix || "SBQ"}-${Math.floor(100000 + Math.random() * 900000)}`,
+        reference: "",
         clientName: "",
         contact: "",
         email: "",
@@ -252,45 +252,86 @@ export default function BookingModal({
             );
           }
 
+          let quotPrefix = "SBQ";
+          let resPrefix = "SBR";
+
           // Fetch Settings for Prefixes
-          const settingsRes = await fetch(getApiUrl("settings"), {
-            headers: { Authorization: `Bearer ${token}` },
+          try {
+            const settingsRes = await fetch(getApiUrl("settings"), {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            if (settingsRes.ok) {
+              const data = await settingsRes.json();
+              const settings =
+                data.settings || (Array.isArray(data) ? data[0] : data);
+              setFullSettings(settings);
+              const pdfConfig = settings?.pdf || settings?.pdfConfig;
+              if (pdfConfig) {
+                quotPrefix = pdfConfig.quotationPrefix || "SBQ";
+                resPrefix = pdfConfig.reservationPrefix || "SBR";
+                setQuotationPrefix(quotPrefix);
+                setReservationPrefix(resPrefix);
+              }
+            }
+          } catch (e) {
+            console.error("Error fetching settings prefix:", e);
+          }
+
+          // Fetch all bookings to calculate next sequence ID
+          let nextSequenceStr = "01";
+          try {
+            const bookingsRes = await fetch(getApiUrl("bookings"), {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            if (bookingsRes.ok) {
+              const bData = await bookingsRes.json();
+              const bookingsList = bData.bookings || (Array.isArray(bData) ? bData : []);
+              
+              // Filter by exact type (quotation or reservation)
+              const sameTypeBookings = bookingsList.filter((b: any) => b?.type === type);
+              
+              let maxSequenceNum = 0;
+              sameTypeBookings.forEach((b: any) => {
+                const bookingId = b?.bookingId || "";
+                const parts = bookingId.split("-");
+                if (parts.length > 1) {
+                  const suffix = parts[parts.length - 1];
+                  const num = parseInt(suffix, 10);
+                  if (!isNaN(num) && num > maxSequenceNum) {
+                    maxSequenceNum = num;
+                  }
+                }
+              });
+              
+              const nextNum = maxSequenceNum + 1;
+              nextSequenceStr = String(nextNum).padStart(2, "0");
+            }
+          } catch (err) {
+            console.error("Error computing sequence ID:", err);
+          }
+
+          // Update initial reference ONLY if it is currently empty (for fresh new bookings)
+          setFormData((prev) => {
+            if (prev.reference && !prev.reference.includes("undefined") && prev.reference !== "")
+              return prev;
+            return {
+              ...prev,
+              reference: `${type === "reservation" ? resPrefix : quotPrefix}-${nextSequenceStr}`,
+            };
           });
-          if (settingsRes.ok) {
-            const data = await settingsRes.json();
-            const settings =
-              data.settings || (Array.isArray(data) ? data[0] : data);
-            setFullSettings(settings);
-            const pdfConfig = settings?.pdf || settings?.pdfConfig;
 
-            if (pdfConfig) {
-              setQuotationPrefix(pdfConfig.quotationPrefix || "SBQ");
-              setReservationPrefix(pdfConfig.reservationPrefix || "SBR");
-
-              // Update initial reference ONLY if it is currently empty (for fresh new bookings)
-              setFormData((prev) => {
-                if (prev.reference && !prev.reference.includes("undefined"))
-                  return prev;
+          // Force prefix swap for conversion if settings changed prefixes
+          if (isOpen && initialData && type === "reservation" && !isEdit) {
+            setFormData((prev) => {
+              const parts = (initialData.bookingId || "").split("-");
+              if (parts.length > 1) {
                 return {
                   ...prev,
-                  reference: `${type === "reservation" ? pdfConfig.reservationPrefix || "SBR" : pdfConfig.quotationPrefix || "SBQ"}-${Math.floor(100000 + Math.random() * 900000)}`,
+                  reference: `${resPrefix}-${parts[1]}`,
                 };
-              });
-            }
-
-            // Force prefix swap for conversion if settings changed prefixes
-            if (isOpen && initialData && type === "reservation" && !isEdit) {
-              setFormData((prev) => {
-                const parts = (initialData.bookingId || "").split("-");
-                if (parts.length > 1) {
-                  return {
-                    ...prev,
-                    reference: `${pdfConfig?.reservationPrefix || "SBR"}-${parts[1]}`,
-                  };
-                }
-                return prev;
-              });
-            }
+              }
+              return prev;
+            });
           }
         } catch (err) {
           console.error("Error fetching modal data:", err);
@@ -400,13 +441,13 @@ export default function BookingModal({
     initialData?._id,
   ]);
 
-  const handleRoomAdd = async (name: string) => {
+  const handleRoomAdd = async (name: string, totalRoomsCount?: string) => {
     try {
       setIsSaving(true);
       const token = localStorage.getItem("authToken");
       const payload = {
         user: decodedUserId,
-        totalRooms: 1,
+        totalRooms: parseInt(totalRoomsCount || "1", 10) || 1,
         roomName: name,
         roomType: name,
         description: "Standard Category",
@@ -437,6 +478,10 @@ export default function BookingModal({
             rooms.map((r: any) => ({
               _id: r._id,
               name: r.roomName || r.roomType,
+              totalRooms:
+                typeof r.totalRooms === "number"
+                  ? r.totalRooms
+                  : parseInt(r.totalRooms || "0", 10) || 0,
             })),
           );
         }
@@ -1032,6 +1077,20 @@ export default function BookingModal({
 
   return (
     <React.Fragment>
+      <style dangerouslySetInnerHTML={{ __html: `
+        /* Hide spin-buttons for Chrome, Safari, Edge, Opera */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+          -webkit-appearance: none !important;
+          margin: 0 !important;
+        }
+
+        /* Hide spin-buttons for Firefox */
+        input[type="number"] {
+          -moz-appearance: textfield !important;
+          appearance: none !important;
+        }
+      `}} />
       <div className="fixed inset-0 z-[200] h-screen overflow-y-auto bg-black/90 backdrop-blur-xl animate-in fade-in duration-300 p-4 md:p-10 scrollbar-hide">
         <div
           className="min-h-full flex items-center justify-center"
@@ -1089,16 +1148,19 @@ export default function BookingModal({
                 />
               </div>
 
-              <div className="space-y-2 md:col-span-2">
+              <div className="space-y-2 md:col-span-2 animate-in fade-in duration-300">
                 <label className="text-sm text-gray-400 ml-1 font-medium">
-                  {type === "reservation" ? "Reservation" : "Quotation"} ID
-                  (Auto-generated)
+                  {type === "reservation" ? "Reservation" : "Quotation"} ID (Sequential)
                 </label>
                 <input
                   type="text"
                   readOnly
-                  value={formData.reference}
-                  className="w-full bg-gray-800/30 border border-white/5 rounded-xl px-4 py-3 outline-none text-gray-500 cursor-not-allowed"
+                  value={formData.reference || "Calculating sequential ID..."}
+                  className={`w-full bg-orange-600/10 border border-orange-600/30 rounded-xl px-4 py-3 outline-none ${
+                    !formData.reference 
+                      ? "text-orange-500/50 animate-pulse font-medium" 
+                      : "text-orange-500 font-black tracking-widest"
+                  } cursor-not-allowed select-all`}
                 />
               </div>
 
@@ -1718,11 +1780,11 @@ export default function BookingModal({
         title={managerTitle}
         items={
           managerTitle.includes("Rooms")
-            ? roomList.map((r) => (typeof r === "string" ? r : r.name))
+            ? roomList.map((r) => (typeof r === "string" ? r : `${r.name}::${r.totalRooms || 0}`))
             : serviceList.map((s) => (typeof s === "string" ? s : s.name))
         }
-        onAdd={(name) => {
-          if (managerTitle.includes("Rooms")) handleRoomAdd(name);
+        onAdd={(name, extra) => {
+          if (managerTitle.includes("Rooms")) handleRoomAdd(name, extra);
           else handleServiceAdd(name);
         }}
         onRemove={(index) => {

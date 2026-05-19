@@ -16,6 +16,7 @@ import {
   Clock,
 } from "lucide-react";
 import { getApiUrl } from "@/lib/api";
+import { useRouter } from "next/navigation";
 import BookingModal from "./modals/BookingModal";
 
 interface BookingCalendarProps {
@@ -24,6 +25,7 @@ interface BookingCalendarProps {
 }
 
 export default function BookingCalendar({ initialRooms = [], initialBookings = [] }: BookingCalendarProps) {
+  const router = useRouter();
   const [viewDate, setViewDate] = useState(new Date());
   const [totalRooms, setTotalRooms] = useState(() => {
     return initialRooms.reduce((sum: number, r: any) => {
@@ -544,20 +546,14 @@ export default function BookingCalendar({ initialRooms = [], initialBookings = [
                                   </span>
                                 </div>
                                 <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setSelectedBooking(b);
-                                    setModalType(
-                                      b.type === "quotation"
-                                        ? "quotation"
-                                        : "reservation",
-                                    );
-                                    setIsModalOpen(true);
-                                  }}
-                                  className="w-full py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-[10px] font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-lg shadow-orange-500/20"
-                                >
-                                  <Eye className="w-3 h-3" /> View Full Details
-                                </button>
+                                   onClick={(e) => {
+                                     e.stopPropagation();
+                                     router.push(`/dashboard/view/${b._id}`);
+                                   }}
+                                   className="w-full py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-[10px] font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-lg shadow-orange-500/20"
+                                 >
+                                   <Eye className="w-3 h-3" /> View Full Details
+                                 </button>
                               </div>
                             ))}
                         </div>
@@ -712,15 +708,14 @@ export default function BookingCalendar({ initialRooms = [], initialBookings = [
                           </div>
 
                           <button
-                            onClick={() => {
-                              setSelectedBooking(br.booking);
-                              setModalType("reservation");
-                              setIsModalOpen(true);
-                            }}
-                            className="w-10 h-10 flex items-center justify-center bg-gray-50 hover:bg-gray-900 text-gray-400 hover:text-white rounded-xl cursor-pointer transition-all duration-300"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </button>
+                             onClick={(e) => {
+                               e.stopPropagation();
+                               router.push(`/dashboard/view/${br.booking._id}`);
+                             }}
+                             className="w-10 h-10 flex items-center justify-center bg-gray-50 hover:bg-gray-900 text-gray-400 hover:text-white rounded-xl cursor-pointer transition-all duration-300"
+                           >
+                             <Eye className="w-4 h-4" />
+                           </button>
                         </div>
                         {/* Interactive Status Bar */}
                         <div className="absolute left-6 right-6 -bottom-[1px] h-[2px] bg-gradient-to-r from-transparent via-orange-500/20 to-transparent opacity-0 group-hover:opacity-100 cursor-pointer transition-all duration-500" />
@@ -794,16 +789,15 @@ export default function BookingCalendar({ initialRooms = [], initialBookings = [
                             </div>
                           </div>
 
-                          <button
-                            onClick={() => {
-                              setSelectedBooking(br.booking);
-                              setModalType("reservation");
-                              setIsModalOpen(true);
-                            }}
-                            className="w-10 h-10 flex items-center justify-center bg-blue-50 hover:bg-blue-900 text-blue-400 hover:text-white rounded-xl cursor-pointer transition-all duration-300"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </button>
+                           <button
+                             onClick={(e) => {
+                               e.stopPropagation();
+                               router.push(`/dashboard/view/${br.booking._id}`);
+                             }}
+                             className="w-10 h-10 flex items-center justify-center bg-blue-50 hover:bg-blue-900 text-blue-400 hover:text-white rounded-xl cursor-pointer transition-all duration-300"
+                           >
+                             <Eye className="w-4 h-4" />
+                           </button>
                         </div>
                       </div>
                     ))}

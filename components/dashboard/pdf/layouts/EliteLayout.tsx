@@ -27,7 +27,7 @@ interface LayoutProps {
 
 const EliteLayout = ({ data, settings, tw }: LayoutProps) => {
   const isPreview = settings?.isPreview;
-  const brandColor = settings?.pdf?.color || "#8ac03b"; // Fallback to the image's green if none
+  const brandColor = settings?.pdf?.color || settings?.pdfConfig?.color || "#ea580c";
   const darkColor = "#2b3445"; // The dark navy from the image
 
   const propertyTitle = isPreview ? "SHAPESBYTES" : settings?.title || "COMPANY";

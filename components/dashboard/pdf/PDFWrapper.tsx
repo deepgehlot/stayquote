@@ -24,8 +24,8 @@ interface PDFWrapperProps {
 }
 
 const PDFWrapper = ({ data, settings }: PDFWrapperProps) => {
-  const layout = settings?.pdf?.layout || 'Modern';
-  const accentColor = settings?.pdf?.color || '#ea580c';
+  const layout = settings?.pdf?.layout || settings?.pdfConfig?.layout || 'Modern';
+  const accentColor = settings?.pdf?.color || settings?.pdfConfig?.color || '#ea580c';
 
   // Memoize the customized tailwind instance
   const dynamicTw = React.useMemo(() => createTw({

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Sparkles, Layout, Eye, Check, Save, Loader2, FileText, Hash } from "lucide-react";
+import { Sparkles, Layout, Eye, Check, Save, Loader2, FileText, Hash, Palette } from "lucide-react";
 
 interface DocumentBrandingProps {
   quotationPrefix: string;
@@ -190,6 +190,35 @@ export default function DocumentBranding({
                     )}
                   </button>
                 ))}
+
+                {/* Custom Color Picker */}
+                <div className="flex items-center gap-3 pl-4 border-l border-slate-200">
+                  <div 
+                    className="relative group/picker w-10 h-10 rounded-full border border-slate-200 shadow-md overflow-hidden transition-all hover:scale-110 active:scale-95 flex items-center justify-center cursor-pointer"
+                    style={{ 
+                      background: !["#ea580c", "#0369a1", "#1e3a8a", "#15803d", "#7f1d1d", "#4c1d95", "#0f172a"].includes(pdfColor?.toLowerCase()) 
+                        ? pdfColor 
+                        : "linear-gradient(135deg, #ff0055, #00ffcc, #9900ff)" 
+                    }}
+                    title="Choose Custom Color"
+                  >
+                    <input
+                      type="color"
+                      value={pdfColor || "#ea580c"}
+                      onChange={(e) => setPdfColor(e.target.value)}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                    {!["#ea580c", "#0369a1", "#1e3a8a", "#15803d", "#7f1d1d", "#4c1d95", "#0f172a"].includes(pdfColor?.toLowerCase()) ? (
+                      <Check className="w-5 h-5 text-white drop-shadow-md z-10 animate-in zoom-in-50 duration-300" />
+                    ) : (
+                      <Palette className="w-5 h-5 text-white drop-shadow-md z-10 animate-pulse duration-1000" />
+                    )}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Custom Color</span>
+                    <span className="text-xs font-black text-slate-700 tracking-wider uppercase">{pdfColor || "#ea580c"}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

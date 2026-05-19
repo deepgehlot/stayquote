@@ -27,7 +27,7 @@ const toWords = (num: number): string => {
 
 const ClassicLayout = ({ data, settings, tw }: LayoutProps) => {
   const isPreview = settings?.isPreview;
-  const brandColor = settings?.pdf?.color || "#0f172a";
+  const brandColor = settings?.pdf?.color || settings?.pdfConfig?.color || "#ea580c";
 
   const formatDate = (dateStr: string) => {
     if (!dateStr) return "N/A";
@@ -57,7 +57,7 @@ const ClassicLayout = ({ data, settings, tw }: LayoutProps) => {
   return (
     <View style={tw("flex-1 bg-white p-10")}>
       {/* Header - Classic Centered with Double Divider */}
-      <View style={tw("flex flex-col items-center mb-8")}>
+      <View style={tw("flex flex-col items-center mb-2")}>
         {/* Dynamic Logo from Settings */}
         {(settings?.profilePicture || settings?.logo) && (
           <Image
@@ -121,7 +121,7 @@ const ClassicLayout = ({ data, settings, tw }: LayoutProps) => {
       </View>
 
       {/* Document Type & ID */}
-      <View style={tw("flex flex-row justify-between items-end mb-8")}>
+      <View style={tw("flex flex-row justify-between items-end mb-4")}>
         <View>
           <Text
             style={[
@@ -150,7 +150,7 @@ const ClassicLayout = ({ data, settings, tw }: LayoutProps) => {
       {/* Stay Info Section - Centered Grid */}
       <View
         style={[
-          tw("mb-8 border rounded-sm overflow-hidden"),
+          tw("mb-4 border rounded-sm overflow-hidden"),
           { borderColor: brandColor },
         ]}
       >
@@ -223,7 +223,7 @@ const ClassicLayout = ({ data, settings, tw }: LayoutProps) => {
       </View>
 
       {/* Information Grid - Exact Match to Modern */}
-      <View style={tw("mb-8")}>
+      <View style={tw("mb-4")}>
         <View
           style={[
             tw("border flex flex-row flex-wrap"),
@@ -723,7 +723,7 @@ const ClassicLayout = ({ data, settings, tw }: LayoutProps) => {
       </View>
 
       {/* Amount in words */}
-      <View style={tw("flex flex-row items-center mb-10")}>
+      <View style={tw("flex flex-row items-center mb-4")}>
         <Text
           style={[
             tw("text-[9px] font-black shrink-0 uppercase tracking-tighter"),

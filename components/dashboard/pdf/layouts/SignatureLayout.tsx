@@ -27,7 +27,7 @@ const toWords = (num: number): string => {
 
 const SignatureLayout = ({ data, settings, tw }: LayoutProps) => {
   const isPreview = settings?.isPreview;
-  const brandColor = settings?.pdf?.color || "#ea580c";
+  const brandColor = settings?.pdf?.color || settings?.pdfConfig?.color || "#ea580c";
 
   const formatDate = (dateStr: string) => {
     if (!dateStr) return "N/A";
