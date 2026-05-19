@@ -32,7 +32,7 @@ import {
 import PDFPreviewModal from "@/components/dashboard/modals/PDFPreviewModal";
 import { useState, useEffect } from "react";
 import { getApiUrl } from "@/lib/api";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import ListManagerModal from "@/components/dashboard/modals/ListManagerModal";
 
 import RoomInventoryModal from "@/components/dashboard/modals/RoomInventoryModal";
@@ -68,6 +68,7 @@ export default function SettingsClient({
   initialRooms = [], 
   initialServices = [] 
 }: SettingsClientProps) {
+  const router = useRouter();
   const [isListManagerOpen, setIsListManagerOpen] = useState(false);
   const [managerTitle, setManagerTitle] = useState("");
   const [isRoomModalOpen, setIsRoomModalOpen] = useState(false);
@@ -144,6 +145,7 @@ export default function SettingsClient({
   const [showSmtpPass, setShowSmtpPass] = useState(false);
 
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [savingSection, setSavingSection] = useState<string | null>(null);
 
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -906,7 +908,7 @@ export default function SettingsClient({
     if (!validateForm(section)) return;
 
     try {
-      setIsSaving(true);
+      setSavingSection(section);
       const token = localStorage.getItem("authToken");
 
       // Construct payload dynamically based on the section being saved
@@ -988,6 +990,9 @@ export default function SettingsClient({
       // Update Sidebar immediately
       syncSidebar(propertyTitle, profilePic);
 
+      // Refresh server components cache so settings propagate instantly without reload
+      router.refresh();
+
       // Update settingId so subsequent saves work (e.g. Profile -> Banking)
       if (data.settings && data.settings._id) {
         setSettingId(data.settings._id);
@@ -1014,7 +1019,7 @@ export default function SettingsClient({
         confirmButtonColor: "#ea580c",
       });
     } finally {
-      setIsSaving(false);
+      setSavingSection(null);
     }
   };
 
@@ -1041,7 +1046,7 @@ export default function SettingsClient({
             setPhoneError={setPhoneError}
             emailError={emailError}
             setEmailError={setEmailError}
-            isSaving={isSaving}
+            isSaving={savingSection === "profile"}
             onSave={handleProfileUpdate}
           />
         );
@@ -1065,7 +1070,7 @@ export default function SettingsClient({
             setPaymentTerms={setPaymentTerms}
             cancellationPolicies={cancellationPolicies}
             setCancellationPolicies={setCancellationPolicies}
-            isSaving={isSaving}
+            isSaving={savingSection === "policies"}
             onSave={handleProfileUpdate}
           />
         );
@@ -1082,7 +1087,7 @@ export default function SettingsClient({
             setSmtpPass={setSmtpPass}
             showSmtpPass={showSmtpPass}
             setShowSmtpPass={setShowSmtpPass}
-            isSaving={isSaving}
+            isSaving={savingSection === "smtp"}
             onSave={handleProfileUpdate}
           />
         );
@@ -1100,7 +1105,7 @@ export default function SettingsClient({
             setPreviewData={setPreviewData}
             setPreviewLayout={setPreviewLayout}
             setIsPreviewModalOpen={setIsPreviewModalOpen}
-            isSaving={isSaving}
+            isSaving={savingSection === "system"}
             onSave={handleProfileUpdate}
           />
         );
@@ -1125,7 +1130,7 @@ export default function SettingsClient({
             setGstNumber={setGstNumber}
             qrCode={qrCode}
             setQrCode={setQrCode}
-            isSaving={isSaving}
+            isSaving={savingSection === "banking"}
             onSave={handleProfileUpdate}
           />
         );

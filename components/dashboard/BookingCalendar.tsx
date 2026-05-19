@@ -244,6 +244,7 @@ export default function BookingCalendar({ initialRooms = [], initialBookings = [
           "paid",
           "partially paid",
           "completed",
+          "checked-out",
         ].includes(status);
       });
 
@@ -317,14 +318,15 @@ export default function BookingCalendar({ initialRooms = [], initialBookings = [
         "arrived",
         "paid",
         "partially paid",
+        "completed",
+        "checked-out",
       ].includes(status);
 
       return (
         bStart <= referenceDate &&
         referenceDate < bEnd &&
         b.type === "reservation" &&
-        isActiveStatus &&
-        status !== "checked-out" // Exclude if already marked as checked-out
+        isActiveStatus
       );
     });
 
@@ -672,25 +674,49 @@ export default function BookingCalendar({ initialRooms = [], initialBookings = [
 
                 <div className="space-y-3 lg:space-y-4 max-h-[280px] lg:max-h-[350px] overflow-y-auto pr-1 scrollbar-hide">
                   {selectedDayDetails.booked.length > 0 ? (
-                    selectedDayDetails.booked.map((br, idx) => (
-                      <div
-                        key={idx}
-                        className="group relative bg-white border border-gray-100 rounded-xl p-3 shadow-sm hover:shadow-xl hover:shadow-orange-500/5 hover:-translate-y-1 cursor-pointer transition-all duration-500"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center border border-gray-100 group-hover:bg-orange-600 group-hover:border-orange-600 cursor-pointer transition-all duration-500 overflow-hidden shadow-inner">
-                              <Bed className="w-5 h-5 text-orange-600 group-hover:text-white transition-colors duration-500" />
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-1.5 mb-0.5">
-                                <p className="text-[9px] font-black text-orange-600 uppercase tracking-widest">
-                                  {br.roomName}
-                                </p>
+                    selectedDayDetails.booked.map((br, idx) => {
+                      const isHistoricallyCheckedOut = (() => {
+                        // 1. If we are not viewing a past date, it's not historical
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        const refDate = new Date(selectedDayDetails.referenceDate);
+                        refDate.setHours(0, 0, 0, 0);
+                        if (refDate >= today) return false;
+
+                        // 2. If explicitly marked as checked-out or completed
+                        const status = br.booking.status?.toLowerCase();
+                        if (["checked-out", "completed"].includes(status)) return true;
+
+                        // 3. Intelligently detect if their checkout date has ALREADY passed compared to TODAY (real life)
+                        const checkOutDate = new Date(br.booking.checkOut);
+                        checkOutDate.setHours(0, 0, 0, 0);
+                        return checkOutDate < today;
+                      })();
+
+                      return (
+                        <div
+                          key={idx}
+                          className={`group relative bg-white border border-gray-100 rounded-xl p-3 shadow-sm hover:shadow-xl hover:shadow-orange-500/5 hover:-translate-y-1 cursor-pointer transition-all duration-500 ${isHistoricallyCheckedOut ? "opacity-95" : ""}`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center border border-gray-100 group-hover:bg-orange-600 group-hover:border-orange-600 cursor-pointer transition-all duration-500 overflow-hidden shadow-inner">
+                                <Bed className="w-5 h-5 text-orange-600 group-hover:text-white transition-colors duration-500" />
                               </div>
-                              <p className="text-xs font-black text-slate-900 group-hover:text-orange-600 transition-colors">
-                                {br.clientName}
-                              </p>
+                              <div>
+                                <div className="flex flex-wrap items-center gap-1.5 mb-0.5">
+                                  <p className="text-[9px] font-black text-orange-600 uppercase tracking-widest">
+                                    {br.roomName}
+                                  </p>
+                                  {isHistoricallyCheckedOut && (
+                                    <span className="px-1.5 py-0.5 bg-blue-50 border border-blue-100 text-blue-600 text-[7px] font-black rounded-md uppercase tracking-tighter">
+                                      Checked Out (Historical)
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-xs font-black text-slate-900 group-hover:text-orange-600 transition-colors">
+                                  {br.clientName}
+                                </p>
                               <div className="flex items-center gap-1.5 mt-1">
                                 <Clock className="w-3 h-3 text-gray-400 group-hover:text-orange-400 transition-colors" />
                                 <span className="text-[9px] text-gray-400 font-black uppercase tracking-wider group-hover:text-orange-500 transition-colors">
@@ -720,8 +746,9 @@ export default function BookingCalendar({ initialRooms = [], initialBookings = [
                         {/* Interactive Status Bar */}
                         <div className="absolute left-6 right-6 -bottom-[1px] h-[2px] bg-gradient-to-r from-transparent via-orange-500/20 to-transparent opacity-0 group-hover:opacity-100 cursor-pointer transition-all duration-500" />
                       </div>
-                    ))
-                  ) : (
+                    );
+                  })
+                ) : (
                     <div className="bg-gray-50/40 border-2 border-dashed border-gray-100 rounded-[24px] py-10 px-6 text-center group hover:bg-white hover:border-orange-100 cursor-pointer transition-all duration-500">
                       <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm border border-gray-50 group-hover:scale-110 transition-transform duration-500">
                         <Bed className="w-5 h-5 text-gray-300" />

@@ -60,7 +60,7 @@ const ModernLayout = ({ data, settings, tw }: LayoutProps) => {
       {/* Compact Dark Navy Header */}
       <View
         style={[
-          tw("pt-8 pb-10 flex flex-col items-center"),
+          tw("pt-4 pb-6 flex flex-col items-center"),
           { backgroundColor: brandColor },
         ]}
       >
@@ -69,7 +69,7 @@ const ModernLayout = ({ data, settings, tw }: LayoutProps) => {
           <Image
             src={settings.profilePicture || settings.logo}
             style={[
-              tw("w-14 h-14 rounded-full mb-4 object-cover border-2 border-white/20"),
+              tw("w-12 h-12 rounded-full mb-3 object-cover border-2 border-white/20"),
               { shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2 }
             ]}
           />
@@ -77,7 +77,7 @@ const ModernLayout = ({ data, settings, tw }: LayoutProps) => {
         
         <Text
           style={[
-            tw("text-2xl font-bold tracking-[0.3em] text-white"),
+            tw("text-xl font-bold tracking-[0.3em] text-white"),
             { lineHeight: 1 },
           ]}
         >
@@ -86,46 +86,53 @@ const ModernLayout = ({ data, settings, tw }: LayoutProps) => {
         <View
           style={[
             tw("w-8 h-[1px] bg-white"),
-            { marginTop: 10, marginBottom: 10 },
+            { marginTop: 6, marginBottom: 6 },
           ]}
         />
 
-        <Text
-          style={tw(
-            "text-[7px] font-bold text-white mb-1.5 tracking-wider uppercase",
-          )}
-        >
-          {isPreview
-            ? "123, DEMO BUSINESS PARK, SECTOR 5, JODHPUR, RAJASTHAN - 342001"
-            : settings?.address || "N/A"}
-        </Text>
-        <Text
-          style={tw(
-            "text-[7px] font-bold text-white mb-1.5 tracking-wider uppercase",
-          )}
-        >
-          GSTIN:{" "}
-          {isPreview
-            ? "08ABWFA8226H1ZY"
-            : settings?.bankDetails?.gstNumber || "N/A"}{" "}
-          • PHONE:{" "}
-          {isPreview ? "+91 88902 77537" : settings?.phoneNumber || "N/A"}
-        </Text>
-        <Text
-          style={tw("text-[7px] font-bold text-white tracking-wider uppercase")}
-        >
-          EMAIL:{" "}
-          {isPreview ? "CONTACT@SHAPESBYTES.IN" : settings?.email || "N/A"} •
-          WEBSITE:{" "}
-          {isPreview ? "WWW.SHAPESBYTES.IN" : settings?.websiteLink || "N/A"}
-        </Text>
+        <View style={[{ width: "80%", flexDirection: "column", alignItems: "center" }]}>
+          <Text
+            style={[
+              tw("text-[7px] font-bold text-white mb-1.5 tracking-wider uppercase text-center"),
+              { textAlign: "center" }
+            ]}
+          >
+            {isPreview
+              ? "123, DEMO BUSINESS PARK, SECTOR 5, JODHPUR, RAJASTHAN - 342001"
+              : settings?.address || "N/A"}
+          </Text>
+          <Text
+            style={[
+              tw("text-[6.5px] font-bold text-white mb-1.5 tracking-wider uppercase text-center"),
+              { textAlign: "center" }
+            ]}
+          >
+            GSTIN:{" "}
+            {isPreview
+              ? "08ABWFA8226H1ZY"
+              : settings?.bankDetails?.gstNumber || "N/A"}{" "}
+            • PHONE:{" "}
+            {isPreview ? "+91 88902 77537" : settings?.phoneNumber || "N/A"}
+          </Text>
+          <Text
+            style={[
+              tw("text-[6.5px] font-bold text-white tracking-wider uppercase text-center"),
+              { textAlign: "center" }
+            ]}
+          >
+            EMAIL:{" "}
+            {isPreview ? "CONTACT@SHAPESBYTES.IN" : settings?.email || "N/A"} •
+            WEBSITE:{" "}
+            {isPreview ? "WWW.SHAPESBYTES.IN" : settings?.websiteLink || "N/A"}
+          </Text>
+        </View>
       </View>
 
       {/* Floating Badge - Overlapping */}
-      <View style={tw("flex flex-row justify-center -mt-6 mb-4")}>
+      <View style={tw("flex flex-row justify-center -mt-4 mb-4")}>
         <View
           style={[
-            tw("bg-white px-10 py-3 rounded-full border shadow-lg"),
+            tw("bg-white px-6 py-2 rounded-full border shadow-lg"),
             { borderColor: brandColor },
           ]}
         >
@@ -142,8 +149,8 @@ const ModernLayout = ({ data, settings, tw }: LayoutProps) => {
 
       <View style={tw("px-8")}>
         {/* Stay Info Bar */}
-        <View style={tw("mb-4")}>
-          <View style={tw("flex flex-row mb-2 px-4")}>
+        <View style={tw("mb-2")}>
+          <View style={tw("flex flex-row mb-1 px-4")}>
             <Text
               style={tw(
                 "flex-1 text-[7px] text-gray-400 font-bold text-center uppercase",
@@ -175,7 +182,7 @@ const ModernLayout = ({ data, settings, tw }: LayoutProps) => {
           </View>
           <View
             style={[
-              tw("flex flex-row border-t py-3 px-4"),
+              tw("flex flex-row border-t py-1.5 px-4"),
               { borderColor: brandColor },
             ]}
           >
@@ -215,7 +222,7 @@ const ModernLayout = ({ data, settings, tw }: LayoutProps) => {
         </View>
 
         {/* Quotation Information Grid */}
-        <View style={tw("mb-6")}>
+        <View style={tw("mb-2")}>
           <View
             style={[
               tw("py-2 px-4 rounded-t-sm"),
@@ -426,9 +433,7 @@ const ModernLayout = ({ data, settings, tw }: LayoutProps) => {
                   TOTAL
                 </Text>
               </View>
-            </View>
-
-            {/* Table Body Rows */}
+            </View>            {/* Table Body Rows */}
             {(data?.rooms || [])
               .concat(data?.services || [])
               .map((item: any, i: number) => (
@@ -438,7 +443,7 @@ const ModernLayout = ({ data, settings, tw }: LayoutProps) => {
                 >
                   <View
                     style={tw(
-                      "w-[8%] py-3 border-r border-slate-100 justify-center",
+                      "w-[8%] py-1.5 border-r border-slate-100 justify-center",
                     )}
                   >
                     <Text style={tw("text-[8px] text-slate-900 text-center")}>
@@ -447,22 +452,34 @@ const ModernLayout = ({ data, settings, tw }: LayoutProps) => {
                   </View>
                   <View
                     style={tw(
-                      "flex-1 py-3 px-3 border-r border-slate-100 justify-center",
+                      "flex-1 py-1.5 px-3 border-r border-slate-100 justify-center",
                     )}
                   >
-                    <Text style={tw("text-[8px] font-bold text-slate-900")}>
-                      {item.roomName || item.serviceName}
-                    </Text>
-                    {/* Show description/roomType if available and different from the name */}
-                    {(item.roomType || item.description) && (
-                      <Text style={tw("text-[7px] text-gray-400 mt-1 font-medium")}>
-                        {item.roomType && item.roomType !== item.roomName ? item.roomType : (item.description || "")}
-                      </Text>
-                    )}
+                    {(() => {
+                      let name = item.roomName || item.serviceName || "";
+                      let extra = item.description || "";
+                      if (!item.roomName && name.includes(" | ")) {
+                        const parts = name.split(" | ");
+                        name = parts[0];
+                        extra = parts[1];
+                      }
+                      return (
+                        <>
+                          <Text style={tw("text-[8px] font-bold text-slate-900")}>
+                            {name}
+                          </Text>
+                          {(item.roomType || extra) && (
+                            <Text style={tw("text-[7px] text-gray-400 mt-0.5 font-medium")}>
+                              {item.roomType && item.roomType !== item.roomName ? item.roomType : (extra || "")}
+                            </Text>
+                          )}
+                        </>
+                      );
+                    })()}
                   </View>
                   <View
                     style={tw(
-                      "w-[10%] py-3 border-r border-slate-100 justify-center",
+                      "w-[10%] py-1.5 border-r border-slate-100 justify-center",
                     )}
                   >
                     <Text
@@ -473,7 +490,7 @@ const ModernLayout = ({ data, settings, tw }: LayoutProps) => {
                   </View>
                   <View
                     style={tw(
-                      "w-[15%] py-3 border-r border-slate-100 justify-center",
+                      "w-[15%] py-1.5 border-r border-slate-100 justify-center",
                     )}
                   >
                     <Text
@@ -485,7 +502,7 @@ const ModernLayout = ({ data, settings, tw }: LayoutProps) => {
                   {hasGST && (
                     <View
                       style={tw(
-                        "w-[12%] py-3 border-r border-slate-100 justify-center",
+                        "w-[12%] py-1.5 border-r border-slate-100 justify-center",
                       )}
                     >
                       <Text
@@ -495,7 +512,7 @@ const ModernLayout = ({ data, settings, tw }: LayoutProps) => {
                       </Text>
                     </View>
                   )}
-                  <View style={tw("w-[18%] py-3 justify-center")}>
+                  <View style={tw("w-[18%] py-1.5 justify-center")}>
                     <Text
                       style={tw(
                         "text-[8px] font-bold text-slate-900 text-right pr-6",
@@ -510,13 +527,13 @@ const ModernLayout = ({ data, settings, tw }: LayoutProps) => {
             {/* TOTAL GST Row - Always visible as requested */}
             {hasGST && (
               <View style={tw("flex flex-row border-b border-slate-100")}>
-                <View style={tw("w-[8%] py-2 border-r border-slate-100")} />
-                <View style={tw("flex-1 py-2 border-r border-slate-100")} />
-                <View style={tw("w-[10%] py-2 border-r border-slate-100")} />
-                <View style={tw("w-[15%] py-2 border-r border-slate-100")} />
+                <View style={tw("w-[8%] py-1.5 border-r border-slate-100")} />
+                <View style={tw("flex-1 py-1.5 border-r border-slate-100")} />
+                <View style={tw("w-[10%] py-1.5 border-r border-slate-100")} />
+                <View style={tw("w-[15%] py-1.5 border-r border-slate-100")} />
                 <View
                   style={tw(
-                    "w-[12%] py-2 border-r border-slate-100 justify-center",
+                    "w-[12%] py-1.5 border-r border-slate-100 justify-center",
                   )}
                 >
                   <Text
@@ -527,7 +544,7 @@ const ModernLayout = ({ data, settings, tw }: LayoutProps) => {
                     TOTAL GST
                   </Text>
                 </View>
-                <View style={tw("w-[18%] py-2 justify-center")}>
+                <View style={tw("w-[18%] py-1.5 justify-center")}>
                   <Text
                     style={tw("text-[8px] font-black text-slate-900 text-right pr-6")}
                   >
@@ -540,24 +557,42 @@ const ModernLayout = ({ data, settings, tw }: LayoutProps) => {
             {/* Subtotal Row */}
             <View style={tw("flex flex-row border-b border-slate-100")}>
               {/* Matching empty columns perfectly with the body widths */}
-              <View style={tw("w-[8%] py-2 border-r border-slate-100")} />
-              <View style={tw("flex-1 py-2 border-r border-slate-100")} />
-              <View style={tw("w-[10%] py-2 border-r border-slate-100")} />
-              <View style={tw("w-[15%] py-2 border-r border-slate-100")} />
-              <View
-                style={tw(
-                  "w-[12%] py-2 border-r border-slate-100 justify-center",
-                )}
-              >
-                <Text
+              <View style={tw("w-[8%] flex-shrink-0 py-1.5 border-r border-slate-100")} />
+              <View style={tw("flex-1 py-1.5 border-r border-slate-100")} />
+              <View style={tw("w-[10%] flex-shrink-0 py-1.5 border-r border-slate-100")} />
+              {hasGST ? (
+                <>
+                  <View style={tw("w-[15%] flex-shrink-0 py-1.5 border-r border-slate-100")} />
+                  <View
+                    style={tw(
+                      "w-[12%] flex-shrink-0 py-1.5 border-r border-slate-100 justify-center",
+                    )}
+                  >
+                    <Text
+                      style={tw(
+                        "text-[7px] font-black text-slate-900 text-right pr-2 uppercase",
+                      )}
+                    >
+                      SUBTOTAL
+                    </Text>
+                  </View>
+                </>
+              ) : (
+                <View
                   style={tw(
-                    "text-[7px] font-black text-slate-900 text-right pr-2 uppercase",
+                    "w-[15%] flex-shrink-0 py-1.5 border-r border-slate-100 justify-center",
                   )}
                 >
-                  SUBTOTAL
-                </Text>
-              </View>
-              <View style={tw("w-[18%] py-2 justify-center")}>
+                  <Text
+                    style={tw(
+                      "text-[7px] font-black text-slate-900 text-right pr-2 uppercase",
+                    )}
+                  >
+                    SUBTOTAL
+                  </Text>
+                </View>
+              )}
+              <View style={tw("w-[18%] flex-shrink-0 py-1.5 justify-center")}>
                 <Text
                   style={tw("text-[8px] font-black text-slate-900 text-right pr-6")}
                 >
@@ -570,21 +605,42 @@ const ModernLayout = ({ data, settings, tw }: LayoutProps) => {
             {isReservation && (
               <>
                 <View style={tw("flex flex-row border-b border-slate-100")}>
-                  <View style={tw("flex-1 py-2")} />
-                  <View
-                    style={tw(
-                      "w-[12%] py-2 border-l border-slate-100 justify-center",
-                    )}
-                  >
-                    <Text
+                  <View style={tw("w-[8%] flex-shrink-0 py-1.5 border-r border-slate-100")} />
+                  <View style={tw("flex-1 py-1.5 border-r border-slate-100")} />
+                  <View style={tw("w-[10%] flex-shrink-0 py-1.5 border-r border-slate-100")} />
+                  {hasGST ? (
+                    <>
+                      <View style={tw("w-[15%] flex-shrink-0 py-1.5 border-r border-slate-100")} />
+                      <View
+                        style={tw(
+                          "w-[12%] flex-shrink-0 py-1.5 border-r border-slate-100 justify-center",
+                        )}
+                      >
+                        <Text
+                          style={tw(
+                            "text-[7px] font-black text-slate-900 text-right pr-2 uppercase",
+                          )}
+                        >
+                          ADVANCE PAID
+                        </Text>
+                      </View>
+                    </>
+                  ) : (
+                    <View
                       style={tw(
-                        "text-[7px] font-black text-slate-900 text-right pr-2 uppercase",
+                        "w-[15%] flex-shrink-0 py-1.5 border-r border-slate-100 justify-center",
                       )}
                     >
-                      ADVANCE PAID
-                    </Text>
-                  </View>
-                  <View style={tw("w-[18%] py-2 justify-center")}>
+                      <Text
+                        style={tw(
+                          "text-[7px] font-black text-slate-900 text-right pr-2 uppercase",
+                        )}
+                      >
+                        ADVANCE PAID
+                      </Text>
+                    </View>
+                  )}
+                  <View style={tw("w-[18%] flex-shrink-0 py-1.5 justify-center")}>
                     <Text
                       style={tw("text-[8px] font-black text-slate-900 text-right pr-6")}
                     >
@@ -594,23 +650,44 @@ const ModernLayout = ({ data, settings, tw }: LayoutProps) => {
                 </View>
 
                 <View style={tw("flex flex-row border-b border-slate-100")}>
-                  <View style={tw("flex-1 py-2")} />
-                  <View
-                    style={tw(
-                      "w-[12%] py-2 border-l border-slate-100 justify-center",
-                    )}
-                  >
-                    <Text
+                  <View style={tw("w-[8%] flex-shrink-0 py-1.5 border-r border-slate-100")} />
+                  <View style={tw("flex-1 py-1.5 border-r border-slate-100")} />
+                  <View style={tw("w-[10%] flex-shrink-0 py-1.5 border-r border-slate-100")} />
+                  {hasGST ? (
+                    <>
+                      <View style={tw("w-[15%] flex-shrink-0 py-1.5 border-r border-slate-100")} />
+                      <View
+                        style={tw(
+                          "w-[12%] flex-shrink-0 py-1.5 border-r border-slate-100 justify-center",
+                        )}
+                      >
+                        <Text
+                          style={tw(
+                            "text-[7px] font-black text-slate-900 text-right pr-2 uppercase",
+                          )}
+                        >
+                          REMAINING
+                        </Text>
+                      </View>
+                    </>
+                  ) : (
+                    <View
                       style={tw(
-                        "text-[7px] font-black text-slate-900 text-right pr-2 uppercase",
+                        "w-[15%] flex-shrink-0 py-1.5 border-r border-slate-100 justify-center",
                       )}
                     >
-                      REMAINING
-                    </Text>
-                  </View>
-                  <View style={tw("w-[18%] py-2 justify-center")}>
+                      <Text
+                        style={tw(
+                          "text-[7px] font-black text-slate-900 text-right pr-2 uppercase",
+                        )}
+                      >
+                        REMAINING
+                      </Text>
+                    </View>
+                  )}
+                  <View style={tw("w-[18%] flex-shrink-0 py-1.5 justify-center")}>
                     <Text
-                      style={tw("text-[8px] font-black text-orange-600 text-right pr-6")}
+                      style={tw("text-[8px] font-black text-slate-900 text-right pr-6")}
                     >
                       Rs. {Number(balanceDue).toLocaleString()}
                     </Text>
@@ -627,7 +704,7 @@ const ModernLayout = ({ data, settings, tw }: LayoutProps) => {
               ]}
             >
               {/* Merged all columns except TOTAL to easily push the text to the right */}
-              <View style={tw("flex-1 py-3 justify-center")}>
+              <View style={tw("flex-1 py-2 justify-center")}>
                 <Text
                   style={tw(
                     "text-[8px] font-bold text-white uppercase tracking-widest text-right",
@@ -637,7 +714,7 @@ const ModernLayout = ({ data, settings, tw }: LayoutProps) => {
                 </Text>
               </View>
               {/* Kept the TOTAL column exact width for perfect vertical alignment */}
-              <View style={tw("w-[18%] py-3 justify-center")}>
+              <View style={tw("w-[18%] py-2 justify-center")}>
                 <Text
                   style={tw("text-[9px] font-bold text-white text-right pr-6")}
                 >
@@ -780,12 +857,10 @@ const ModernLayout = ({ data, settings, tw }: LayoutProps) => {
             )
               .slice(0, 5)
               .map((term: string, i: number) => (
-                <Text
-                  key={i}
-                  style={tw("text-[7px] text-gray-500 mb-1 leading-tight")}
-                >
-                  • {term}
-                </Text>
+                <View key={i} style={tw("flex flex-row items-start mb-1")}>
+                  <Text style={tw("text-[7px] text-gray-500 mr-1")}>•</Text>
+                  <Text style={tw("flex-1 text-[7px] text-gray-500 leading-tight")}>{term}</Text>
+                </View>
               ))}
 
             <Text
@@ -809,12 +884,10 @@ const ModernLayout = ({ data, settings, tw }: LayoutProps) => {
             )
               .slice(0, 3)
               .map((policy: string, i: number) => (
-                <Text
-                  key={i}
-                  style={tw("text-[7px] text-gray-500 mb-1 leading-tight")}
-                >
-                  • {policy}
-                </Text>
+                <View key={i} style={tw("flex flex-row items-start mb-1")}>
+                  <Text style={tw("text-[7px] text-gray-500 mr-1")}>•</Text>
+                  <Text style={tw("flex-1 text-[7px] text-gray-500 leading-tight")}>{policy}</Text>
+                </View>
               ))}
           </View>
         </View>

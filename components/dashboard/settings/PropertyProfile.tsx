@@ -48,6 +48,8 @@ export default function PropertyProfile({
   isSaving,
   onSave,
 }: PropertyProfileProps) {
+  const [isUploadingLogo, setIsUploadingLogo] = React.useState(false);
+
   return (
     <section
       id="profile"
@@ -76,13 +78,59 @@ export default function PropertyProfile({
                 id="logo-upload"
                 className="hidden"
                 accept="image/*"
-                onChange={(e) => {
+                disabled={isUploadingLogo}
+                onChange={async (e) => {
                   const file = e.target.files?.[0];
                   if (file) {
-                    const reader = new FileReader();
-                    reader.onloadend = () =>
-                      setProfilePic(reader.result as string);
-                    reader.readAsDataURL(file);
+                    try {
+                      setIsUploadingLogo(true);
+                      const formData = new FormData();
+                      formData.append("file", file);
+                      formData.append("upload_preset", "sb_hospitability_uploads");
+                      formData.append("resource_type", "image");
+                      formData.append("folder", "avan_homes_logos");
+                      formData.append("public_id", `logo_${Date.now()}`);
+
+                      const cloudName = "dwzfpa4vq";
+                      const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+                        method: "POST",
+                        body: formData,
+                      });
+
+                      if (res.ok) {
+                        const result = await res.json();
+                        setProfilePic(result.secure_url);
+
+                        const Swal = (await import("sweetalert2")).default;
+                        Swal.fire({
+                          title: "Success!",
+                          text: "Logo uploaded successfully!",
+                          icon: "success",
+                          toast: true,
+                          position: "top-end",
+                          showConfirmButton: false,
+                          timer: 3000,
+                          timerProgressBar: true,
+                          background: "#ffffff",
+                          color: "#0f172a",
+                        });
+                      } else {
+                        throw new Error("Failed to upload image");
+                      }
+                    } catch (error: any) {
+                      console.error("Cloudinary upload failed:", error);
+                      const Swal = (await import("sweetalert2")).default;
+                      Swal.fire({
+                        title: "Upload Failed",
+                        text: error.message || "Failed to upload image. Please try again.",
+                        icon: "error",
+                        confirmButtonColor: "#ea580c",
+                        background: "#ffffff",
+                        color: "#0f172a",
+                      });
+                    } finally {
+                      setIsUploadingLogo(false);
+                    }
                   }
                 }}
               />
@@ -90,7 +138,14 @@ export default function PropertyProfile({
                 htmlFor="logo-upload"
                 className="w-32 h-32 rounded-3xl bg-gray-50 border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all hover:border-orange-500 hover:bg-orange-50/30 overflow-hidden relative"
               >
-                {profilePic ? (
+                {isUploadingLogo ? (
+                  <>
+                    <Loader2 className="w-6 h-6 text-orange-600 animate-spin" />
+                    <span className="text-[10px] font-bold text-orange-600 uppercase tracking-widest text-center px-2 animate-pulse">
+                      Uploading...
+                    </span>
+                  </>
+                ) : profilePic ? (
                   <img
                     src={profilePic}
                     alt="Logo"
@@ -104,11 +159,13 @@ export default function PropertyProfile({
                     </span>
                   </>
                 )}
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span className="text-[10px] font-bold text-white uppercase tracking-widest">
-                    Change Logo
-                  </span>
-                </div>
+                {!isUploadingLogo && (
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className="text-[10px] font-bold text-white uppercase tracking-widest">
+                      Change Logo
+                    </span>
+                  </div>
+                )}
               </label>
             </div>
             <div className="flex-1 space-y-2 text-center sm:text-left">

@@ -12,6 +12,9 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: "ShapesBytes | SaaS Property Management",
   description: "Premium property stay and quotation management system by ShapesBytes",
+  icons: {
+    icon: "/favicon/favicon.ico",
+  },
 };
 
 export default function RootLayout({

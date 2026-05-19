@@ -55,7 +55,7 @@ const ClassicLayout = ({ data, settings, tw }: LayoutProps) => {
   const hasGST = taxAmount > 0;
 
   return (
-    <View style={tw("flex-1 bg-white p-10")}>
+    <View style={tw("flex-1 bg-white pt-6 pb-6 px-10")}>
       {/* Header - Classic Centered with Double Divider */}
       <View style={tw("flex flex-col items-center mb-2")}>
         {/* Dynamic Logo from Settings */}
@@ -63,14 +63,14 @@ const ClassicLayout = ({ data, settings, tw }: LayoutProps) => {
           <Image
             src={settings.profilePicture || settings.logo}
             style={[
-              tw("w-16 h-16 rounded-full mb-4 object-cover border border-gray-100"),
+              tw("w-14 h-14 rounded-full mb-3 object-cover border border-gray-100"),
               { shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1 }
             ]}
           />
         )}
         <Text
           style={[
-            tw("text-3xl font-bold uppercase tracking-[0.2em] mb-2"),
+            tw("text-2xl font-bold uppercase tracking-[0.2em] mb-1"),
             { color: brandColor },
           ]}
         >
@@ -82,16 +82,20 @@ const ClassicLayout = ({ data, settings, tw }: LayoutProps) => {
 
         <View style={tw("flex flex-col items-center")}>
           <Text
-            style={tw(
-              "text-[8px] text-gray-500 uppercase tracking-widest mb-1",
-            )}
+            style={[
+              tw("text-[7px] text-gray-500 uppercase tracking-normal mb-1 text-center"),
+              { textAlign: "center" }
+            ]}
           >
             {isPreview
               ? "123, DEMO BUSINESS PARK, SECTOR 5, JODHPUR, RAJASTHAN - 342001"
               : settings?.address || "N/A"}
           </Text>
           <Text
-            style={tw("text-[8px] text-gray-500 uppercase tracking-widest")}
+            style={[
+              tw("text-[6.5px] text-gray-500 uppercase tracking-normal text-center"),
+              { textAlign: "center" }
+            ]}
           >
             GSTIN:{" "}
             {isPreview
@@ -104,9 +108,10 @@ const ClassicLayout = ({ data, settings, tw }: LayoutProps) => {
           </Text>
           {settings?.websiteLink && (
             <Text
-              style={tw(
-                "text-[8px] text-gray-500 uppercase tracking-widest mt-1",
-              )}
+              style={[
+                tw("text-[6.5px] text-gray-500 uppercase tracking-normal mt-0.5 text-center"),
+                { textAlign: "center" }
+              ]}
             >
               WEBSITE: {isPreview ? "WWW.SHAPESBYTES.IN" : settings.websiteLink}
             </Text>
@@ -114,14 +119,14 @@ const ClassicLayout = ({ data, settings, tw }: LayoutProps) => {
         </View>
         <View
           style={[
-            tw("w-full h-[1px] mt-4"),
+            tw("w-full h-[1px] mt-2"),
             { backgroundColor: brandColor, opacity: 0.2 },
           ]}
         />
       </View>
 
       {/* Document Type & ID */}
-      <View style={tw("flex flex-row justify-between items-end mb-4")}>
+      <View style={tw("flex flex-row justify-between items-end mb-2")}>
         <View>
           <Text
             style={[
@@ -150,7 +155,7 @@ const ClassicLayout = ({ data, settings, tw }: LayoutProps) => {
       {/* Stay Info Section - Centered Grid */}
       <View
         style={[
-          tw("mb-4 border rounded-sm overflow-hidden"),
+          tw("mb-2 border rounded-sm overflow-hidden"),
           { borderColor: brandColor },
         ]}
       >
@@ -447,7 +452,7 @@ const ClassicLayout = ({ data, settings, tw }: LayoutProps) => {
             >
               <View
                 style={[
-                  tw("w-[8%] flex-shrink-0 py-3 border-r justify-center"),
+                  tw("w-[8%] flex-shrink-0 py-1.5 border-r justify-center"),
                   { borderRightColor: brandColor, borderRightWidth: 0.5 },
                 ]}
               >
@@ -459,25 +464,37 @@ const ClassicLayout = ({ data, settings, tw }: LayoutProps) => {
               </View>
               <View
                 style={[
-                  tw("flex-1 py-3 px-3 border-r justify-center"),
+                  tw("flex-1 py-1.5 px-3 border-r justify-center"),
                   { borderRightColor: brandColor, borderRightWidth: 0.5 },
                 ]}
               >
-                <Text
-                  style={[tw("text-[8px] font-bold"), { color: brandColor }]}
-                >
-                  {item.roomName || item.serviceName}
-                </Text>
-                {/* Show description/roomType if available and different from the name */}
-                {(item.roomType || item.description) && (
-                  <Text style={tw("text-[7px] text-gray-400 mt-1 font-medium")}>
-                    {item.roomType && item.roomType !== item.roomName ? item.roomType : (item.description || "")}
-                  </Text>
-                )}
+                {(() => {
+                  let name = item.roomName || item.serviceName || "";
+                  let extra = item.description || "";
+                  if (!item.roomName && name.includes(" | ")) {
+                    const parts = name.split(" | ");
+                    name = parts[0];
+                    extra = parts[1];
+                  }
+                  return (
+                    <>
+                      <Text
+                        style={[tw("text-[8px] font-bold"), { color: brandColor }]}
+                      >
+                        {name}
+                      </Text>
+                      {(item.roomType || extra) && (
+                        <Text style={tw("text-[7px] text-gray-400 mt-0.5 font-medium")}>
+                          {item.roomType && item.roomType !== item.roomName ? item.roomType : (extra || "")}
+                        </Text>
+                      )}
+                    </>
+                  );
+                })()}
               </View>
               <View
                 style={[
-                  tw("w-[10%] flex-shrink-0 py-3 border-r justify-center"),
+                  tw("w-[10%] flex-shrink-0 py-1.5 border-r justify-center"),
                   { borderRightColor: brandColor, borderRightWidth: 0.5 },
                 ]}
               >
@@ -492,7 +509,7 @@ const ClassicLayout = ({ data, settings, tw }: LayoutProps) => {
               </View>
               <View
                 style={[
-                  tw("w-[15%] flex-shrink-0 py-3 border-r justify-center"),
+                  tw("w-[15%] flex-shrink-0 py-1.5 border-r justify-center"),
                   { borderRightColor: brandColor, borderRightWidth: 0.5 },
                 ]}
               >
@@ -508,7 +525,7 @@ const ClassicLayout = ({ data, settings, tw }: LayoutProps) => {
                 {hasGST && (
                   <View
                     style={[
-                      tw("w-[12%] flex-shrink-0 py-3 border-r justify-center"),
+                      tw("w-[12%] flex-shrink-0 py-1.5 border-r justify-center"),
                       { borderRightColor: brandColor, borderRightWidth: 0.5 },
                     ]}
                   >
@@ -522,7 +539,7 @@ const ClassicLayout = ({ data, settings, tw }: LayoutProps) => {
                     </Text>
                   </View>
                 )}
-              <View style={tw("w-[18%] flex-shrink-0 py-3 justify-center")}>
+              <View style={tw("w-[18%] flex-shrink-0 py-1.5 justify-center")}>
                 <Text
                   style={[
                     tw("text-[8px] font-bold text-right pr-6"),
@@ -545,31 +562,31 @@ const ClassicLayout = ({ data, settings, tw }: LayoutProps) => {
           >
             <View
               style={[
-                tw("w-[8%] py-2 border-r"),
+                tw("w-[8%] py-1.5 border-r"),
                 { borderRightColor: brandColor, borderRightWidth: 0.5 },
               ]}
             />
             <View
               style={[
-                tw("flex-1 py-2 border-r"),
+                tw("flex-1 py-1.5 border-r"),
                 { borderRightColor: brandColor, borderRightWidth: 0.5 },
               ]}
             />
             <View
               style={[
-                tw("w-[10%] py-2 border-r"),
+                tw("w-[10%] py-1.5 border-r"),
                 { borderRightColor: brandColor, borderRightWidth: 0.5 },
               ]}
             />
             <View
               style={[
-                tw("w-[15%] py-2 border-r"),
+                tw("w-[15%] py-1.5 border-r"),
                 { borderRightColor: brandColor, borderRightWidth: 0.5 },
               ]}
             />
             <View
               style={[
-                tw("w-[12%] py-2 border-r justify-center"),
+                tw("w-[12%] py-1.5 border-r justify-center"),
                 { borderRightColor: brandColor, borderRightWidth: 0.5 },
               ]}
             >
@@ -582,7 +599,7 @@ const ClassicLayout = ({ data, settings, tw }: LayoutProps) => {
                 TOTAL GST
               </Text>
             </View>
-            <View style={tw("w-[18%] py-2 justify-center")}>
+            <View style={tw("w-[18%] py-1.5 justify-center")}>
               <Text
                 style={[
                   tw("text-[8px] font-black text-right pr-6"),
@@ -604,44 +621,64 @@ const ClassicLayout = ({ data, settings, tw }: LayoutProps) => {
         >
           <View
             style={[
-              tw("w-[8%] py-2 border-r"),
+              tw("w-[8%] flex-shrink-0 py-1.5 border-r"),
               { borderRightColor: brandColor, borderRightWidth: 0.5 },
             ]}
           />
           <View
             style={[
-              tw("flex-1 py-2 border-r"),
+              tw("flex-1 py-1.5 border-r"),
               { borderRightColor: brandColor, borderRightWidth: 0.5 },
             ]}
           />
           <View
             style={[
-              tw("w-[10%] py-2 border-r"),
+              tw("w-[10%] flex-shrink-0 py-1.5 border-r"),
               { borderRightColor: brandColor, borderRightWidth: 0.5 },
             ]}
           />
-          <View
-            style={[
-              tw("w-[15%] py-2 border-r"),
-              { borderRightColor: brandColor, borderRightWidth: 0.5 },
-            ]}
-          />
-          <View
-            style={[
-              tw("w-[12%] py-2 border-r justify-center"),
-              { borderRightColor: brandColor, borderRightWidth: 0.5 },
-            ]}
-          >
-            <Text
+          {hasGST ? (
+            <>
+              <View
+                style={[
+                  tw("w-[15%] flex-shrink-0 py-1.5 border-r"),
+                  { borderRightColor: brandColor, borderRightWidth: 0.5 },
+                ]}
+              />
+              <View
+                style={[
+                  tw("w-[12%] flex-shrink-0 py-1.5 border-r justify-center"),
+                  { borderRightColor: brandColor, borderRightWidth: 0.5 },
+                ]}
+              >
+                <Text
+                  style={[
+                    tw("text-[7px] font-black text-right pr-2 uppercase"),
+                    { color: brandColor },
+                  ]}
+                >
+                  SUBTOTAL
+                </Text>
+              </View>
+            </>
+          ) : (
+            <View
               style={[
-                tw("text-[7px] font-black text-right pr-2 uppercase"),
-                { color: brandColor },
+                tw("w-[15%] flex-shrink-0 py-1.5 border-r justify-center"),
+                { borderRightColor: brandColor, borderRightWidth: 0.5 },
               ]}
             >
-              SUBTOTAL
-            </Text>
-          </View>
-          <View style={tw("w-[18%] py-2 justify-center")}>
+              <Text
+                style={[
+                  tw("text-[7px] font-black text-right pr-2 uppercase"),
+                  { color: brandColor },
+                ]}
+              >
+                SUBTOTAL
+              </Text>
+            </View>
+          )}
+          <View style={tw("w-[18%] flex-shrink-0 py-1.5 justify-center")}>
             <Text
               style={[
                 tw("text-[8px] font-black text-right pr-6"),
@@ -657,17 +694,60 @@ const ClassicLayout = ({ data, settings, tw }: LayoutProps) => {
         {isReservation && (
           <>
             <View style={[tw("flex flex-row border-b"), { borderBottomColor: brandColor, borderBottomWidth: 0.5 }]}>
-              <View style={tw("flex-1 py-2")} />
               <View
-                style={[tw("w-[12%] py-2 justify-center border-l"), { borderLeftColor: brandColor, borderLeftWidth: 0.5 }]}
-              >
-                <Text
-                  style={[tw("text-[7px] font-black text-right pr-2 uppercase"), { color: brandColor }]}
+                style={[
+                  tw("w-[8%] flex-shrink-0 py-1.5 border-r"),
+                  { borderRightColor: brandColor, borderRightWidth: 0.5 },
+                ]}
+              />
+              <View
+                style={[
+                  tw("flex-1 py-1.5 border-r"),
+                  { borderRightColor: brandColor, borderRightWidth: 0.5 },
+                ]}
+              />
+              <View
+                style={[
+                  tw("w-[10%] flex-shrink-0 py-1.5 border-r"),
+                  { borderRightColor: brandColor, borderRightWidth: 0.5 },
+                ]}
+              />
+              {hasGST ? (
+                <>
+                  <View
+                    style={[
+                      tw("w-[15%] flex-shrink-0 py-1.5 border-r"),
+                      { borderRightColor: brandColor, borderRightWidth: 0.5 },
+                    ]}
+                  />
+                  <View
+                    style={[
+                      tw("w-[12%] flex-shrink-0 py-1.5 border-r justify-center"),
+                      { borderRightColor: brandColor, borderRightWidth: 0.5 },
+                    ]}
+                  >
+                    <Text
+                      style={[tw("text-[7px] font-black text-right pr-2 uppercase"), { color: brandColor }]}
+                    >
+                      ADVANCE PAID
+                    </Text>
+                  </View>
+                </>
+              ) : (
+                <View
+                  style={[
+                    tw("w-[15%] flex-shrink-0 py-1.5 border-r justify-center"),
+                    { borderRightColor: brandColor, borderRightWidth: 0.5 },
+                  ]}
                 >
-                  ADVANCE PAID
-                </Text>
-              </View>
-              <View style={tw("w-[18%] py-2 justify-center")}>
+                  <Text
+                    style={[tw("text-[7px] font-black text-right pr-2 uppercase"), { color: brandColor }]}
+                  >
+                    ADVANCE PAID
+                  </Text>
+                </View>
+              )}
+              <View style={tw("w-[18%] flex-shrink-0 py-1.5 justify-center")}>
                 <Text
                   style={[tw("text-[8px] font-black text-right pr-6"), { color: brandColor }]}
                 >
@@ -677,17 +757,60 @@ const ClassicLayout = ({ data, settings, tw }: LayoutProps) => {
             </View>
 
             <View style={[tw("flex flex-row border-b"), { borderBottomColor: brandColor, borderBottomWidth: 0.5 }]}>
-              <View style={tw("flex-1 py-2")} />
               <View
-                style={[tw("w-[12%] py-2 justify-center border-l"), { borderLeftColor: brandColor, borderLeftWidth: 0.5 }]}
-              >
-                <Text
-                  style={[tw("text-[7px] font-black text-right pr-2 uppercase"), { color: brandColor }]}
+                style={[
+                  tw("w-[8%] flex-shrink-0 py-1.5 border-r"),
+                  { borderRightColor: brandColor, borderRightWidth: 0.5 },
+                ]}
+              />
+              <View
+                style={[
+                  tw("flex-1 py-1.5 border-r"),
+                  { borderRightColor: brandColor, borderRightWidth: 0.5 },
+                ]}
+              />
+              <View
+                style={[
+                  tw("w-[10%] flex-shrink-0 py-1.5 border-r"),
+                  { borderRightColor: brandColor, borderRightWidth: 0.5 },
+                ]}
+              />
+              {hasGST ? (
+                <>
+                  <View
+                    style={[
+                      tw("w-[15%] flex-shrink-0 py-1.5 border-r"),
+                      { borderRightColor: brandColor, borderRightWidth: 0.5 },
+                    ]}
+                  />
+                  <View
+                    style={[
+                      tw("w-[12%] flex-shrink-0 py-1.5 border-r justify-center"),
+                      { borderRightColor: brandColor, borderRightWidth: 0.5 },
+                    ]}
+                  >
+                    <Text
+                      style={[tw("text-[7px] font-black text-right pr-2 uppercase"), { color: brandColor }]}
+                    >
+                      REMAINING
+                    </Text>
+                  </View>
+                </>
+              ) : (
+                <View
+                  style={[
+                    tw("w-[15%] flex-shrink-0 py-1.5 border-r justify-center"),
+                    { borderRightColor: brandColor, borderRightWidth: 0.5 },
+                  ]}
                 >
-                  REMAINING
-                </Text>
-              </View>
-              <View style={tw("w-[18%] py-2 justify-center")}>
+                  <Text
+                    style={[tw("text-[7px] font-black text-right pr-2 uppercase"), { color: brandColor }]}
+                  >
+                    REMAINING
+                  </Text>
+                </View>
+              )}
+              <View style={tw("w-[18%] flex-shrink-0 py-1.5 justify-center")}>
                 <Text
                   style={[tw("text-[8px] font-black text-right pr-6"), { color: brandColor }]}
                 >
@@ -705,7 +828,7 @@ const ClassicLayout = ({ data, settings, tw }: LayoutProps) => {
             { backgroundColor: brandColor },
           ]}
         >
-          <View style={tw("flex-1 py-3 justify-center")}>
+          <View style={tw("flex-1 py-2 justify-center")}>
             <Text
               style={tw(
                 "text-[8px] font-bold text-white uppercase tracking-widest text-right pr-4",
@@ -714,7 +837,7 @@ const ClassicLayout = ({ data, settings, tw }: LayoutProps) => {
               Grand Total :
             </Text>
           </View>
-          <View style={tw("w-[18%] py-3 justify-center")}>
+          <View style={tw("w-[18%] py-2 justify-center")}>
             <Text style={tw("text-[9px] font-bold text-white text-right pr-6")}>
               Rs. {Number(grandTotalAmount).toLocaleString()}
             </Text>
@@ -862,9 +985,10 @@ const ClassicLayout = ({ data, settings, tw }: LayoutProps) => {
             )
               .slice(0, 4)
               .map((term: string, i: number) => (
-                <Text key={i} style={tw("text-[7px] text-gray-500 mb-1")}>
-                  • {term}
-                </Text>
+                <View key={i} style={tw("flex flex-row items-start mb-1")}>
+                  <Text style={tw("text-[7px] text-gray-500 mr-1")}>•</Text>
+                  <Text style={tw("flex-1 text-[7px] text-gray-500")}>{term}</Text>
+                </View>
               ))}
           </View>
           <View>
@@ -887,9 +1011,10 @@ const ClassicLayout = ({ data, settings, tw }: LayoutProps) => {
             )
               .slice(0, 3)
               .map((policy: string, i: number) => (
-                <Text key={i} style={tw("text-[7px] text-gray-500 mb-1")}>
-                  • {policy}
-                </Text>
+                <View key={i} style={tw("flex flex-row items-start mb-1")}>
+                  <Text style={tw("text-[7px] text-gray-500 mr-1")}>•</Text>
+                  <Text style={tw("flex-1 text-[7px] text-gray-500")}>{policy}</Text>
+                </View>
               ))}
           </View>
         </View>

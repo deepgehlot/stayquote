@@ -274,7 +274,13 @@ export default function Sidebar({ initialSettings }: SidebarProps) {
                 <p className="text-slate-500 text-[9px] leading-snug mb-3 font-medium">
                   Our team is available for any assistance.
                 </p>
-                <button className="w-full bg-orange-600 text-white hover:bg-orange-700 py-2 rounded-lg text-[9px] font-black uppercase tracking-wider cursor-pointer transition-all shadow-md shadow-orange-600/10 active:scale-95">
+                <button
+                  onClick={() => {
+                    setIsOpen(false);
+                    window.location.href = "mailto:growth@shapebytes.com?subject=Support%20Request%20-%20StayQuote";
+                  }}
+                  className="w-full bg-orange-600 text-white hover:bg-orange-700 py-2 rounded-lg text-[9px] font-black uppercase tracking-wider cursor-pointer transition-all shadow-md shadow-orange-600/10 active:scale-95"
+                >
                   Contact Support
                 </button>
               </div>

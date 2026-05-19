@@ -89,6 +89,20 @@ export default function BookingModal({
   const [decodedUserId, setDecodedUserId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [fullSettings, setFullSettings] = useState<any>(null);
+  const [lastAddedId, setLastAddedId] = useState<string | null>(null);
+
+  // Smooth scroll to newly added item
+  useEffect(() => {
+    if (lastAddedId) {
+      const timer = setTimeout(() => {
+        const el = document.getElementById(`item-${lastAddedId}`);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [lastAddedId]);
 
   // Sync nights when check-in/out changes
   useEffect(() => {
@@ -144,10 +158,10 @@ export default function BookingModal({
       // Populate items from rooms and services
       const editItems: QuotationItem[] = [
         ...(initialData.rooms || []).map((r: any) => {
-          // If description is missing (stripped by API), we try to get it from roomType
-          // but only if roomType is different from roomName (since roomType is often used as fallback for roomName)
+
           const extra =
             r.description || (r.roomType !== r.roomName ? r.roomType : "");
+          const cleanExtra = (extra === "Added from booking" || extra === "Standard Category") ? "" : extra;
 
           return {
             id: Math.random().toString(36).substr(2, 9),
@@ -155,25 +169,35 @@ export default function BookingModal({
             description: r.roomName || r.roomType || "",
             price: r.rate || 0,
             quantity: r.qty || r.quantity || 1,
-            extraDetails: extra || "",
+            extraDetails: cleanExtra || "",
             gst: r.gst || 0,
             applyGST: (r.gst || 0) > 0,
-            showDetails: !!extra,
+            showDetails: !!cleanExtra,
             roomId: r.roomId || r._id,
           };
         }),
-        ...(initialData.services || []).map((s: any) => ({
-          id: Math.random().toString(36).substr(2, 9),
-          type: "service" as const,
-          description: s.serviceName || "",
-          price: s.rate || 0,
-          quantity: s.qty || s.quantity || 1,
-          extraDetails: s.description || "",
-          gst: s.gst || 0,
-          applyGST: (s.gst || 0) > 0,
-          showDetails: false,
-          serviceId: s.serviceId || s._id,
-        })),
+        ...(initialData.services || []).map((s: any) => {
+          let name = s.serviceName || "";
+          let extra = s.description || "";
+          if (name.includes(" | ")) {
+            const parts = name.split(" | ");
+            name = parts[0];
+            extra = parts[1];
+          }
+          const cleanExtra = (extra === "Added from booking" || extra === "Standard Category") ? "" : extra;
+          return {
+            id: Math.random().toString(36).substr(2, 9),
+            type: "service" as const,
+            description: name,
+            price: s.rate || 0,
+            quantity: s.qty || s.quantity || 1,
+            extraDetails: cleanExtra || "",
+            gst: s.gst || 0,
+            applyGST: (s.gst || 0) > 0,
+            showDetails: !!cleanExtra,
+            serviceId: s.serviceId || s._id,
+          };
+        }),
       ];
       setItems(editItems);
     } else if (isOpen && !isEdit) {
@@ -248,6 +272,8 @@ export default function BookingModal({
               services.map((s: any) => ({
                 _id: s._id,
                 name: s.serviceName,
+                price: s.price || 0,
+                description: s.description || "",
               })),
             );
           }
@@ -450,7 +476,7 @@ export default function BookingModal({
         totalRooms: parseInt(totalRoomsCount || "1", 10) || 1,
         roomName: name,
         roomType: name,
-        description: "Standard Category",
+        description: "",
         capacity: 2,
         basePrice: 0,
         gst: 18,
@@ -515,7 +541,7 @@ export default function BookingModal({
       const payload = {
         user: decodedUserId,
         serviceName: name,
-        description: "Added from booking",
+        description: "",
         price: 0,
         gst: 18,
         status: "active",
@@ -542,6 +568,8 @@ export default function BookingModal({
             services.map((s: any) => ({
               _id: s._id,
               name: s.serviceName,
+              price: s.price || 0,
+              description: s.description || "",
             })),
           );
         }
@@ -695,7 +723,7 @@ export default function BookingModal({
 
           return {
             serviceId: originalService?._id || i.serviceId || null,
-            serviceName: i.description,
+            serviceName: i.extraDetails ? `${i.description} | ${i.extraDetails}` : i.description,
             description: i.extraDetails || "",
             qty: i.quantity,
             rate: i.price,
@@ -804,7 +832,7 @@ export default function BookingModal({
         // Show a small loader for the upload process
         Swal.fire({
           title: "Syncing Document...",
-          text: "Generating and uploading PDF to Cloudinary",
+          text: "Generating and updating PDF document",
           allowOutsideClick: false,
           didOpen: () => {
             Swal.showLoading();
@@ -984,8 +1012,9 @@ export default function BookingModal({
   };
 
   const addItem = (type: "room" | "service") => {
+    const newId = Math.random().toString(36).substr(2, 9);
     const newItem: QuotationItem = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: newId,
       type,
       description: "", // Initialize with empty string for better placeholder matching
       price: 0,
@@ -996,6 +1025,7 @@ export default function BookingModal({
       showDetails: false,
     };
     setItems([...items, newItem]);
+    setLastAddedId(newId);
   };
 
   const handleGlobalGstChange = (val: number) => {
@@ -1035,7 +1065,17 @@ export default function BookingModal({
             return { ...item, description: value, roomId: room?._id };
           } else if (item.type === "service") {
             const service = serviceList.find((s) => s.name === value);
-            return { ...item, description: value, serviceId: service?._id };
+            const cleanDesc = (service?.description === "Added from booking" || service?.description === "Standard Category")
+              ? ""
+              : (service?.description || "");
+            return {
+              ...item,
+              description: value,
+              serviceId: service?._id,
+              extraDetails: cleanDesc || item.extraDetails || "",
+              price: service?.price || item.price || 0,
+              showDetails: !!cleanDesc,
+            };
           }
         }
 
@@ -1431,9 +1471,16 @@ export default function BookingModal({
 
                 {/* Dynamic Items List */}
                 <div className="space-y-6">
-                  {items.map((item) => (
+                  {[...items]
+                    .sort((a, b) => {
+                      if (a.type === "room" && b.type === "service") return -1;
+                      if (a.type === "service" && b.type === "room") return 1;
+                      return 0;
+                    })
+                    .map((item) => (
                     <div
                       key={item.id}
+                      id={`item-${item.id}`}
                       className="bg-white/5 border border-white/5 p-5 rounded-[24px] animate-in slide-in-from-right-4 duration-300"
                     >
                       <div className="flex flex-col gap-4">
@@ -1503,6 +1550,15 @@ export default function BookingModal({
                                       </option>
                                       {(item.type === "room"
                                         ? roomList.filter((r: any) => {
+                                            // Exclude if already selected in another row
+                                            const isSelectedInOther = items.some(
+                                              (it) =>
+                                                it.type === "room" &&
+                                                it.id !== item.id &&
+                                                (it.description === r.name || it.roomId === r._id)
+                                            );
+                                            if (isSelectedInOther) return false;
+
                                             const available =
                                               availableRoomsById[r._id];
                                             const isSelected =
@@ -1515,7 +1571,16 @@ export default function BookingModal({
                                                 : available > 0)
                                             );
                                           })
-                                        : serviceList
+                                        : serviceList.filter((s: any) => {
+                                            // Exclude if already selected in another row
+                                            const isSelectedInOther = items.some(
+                                              (it) =>
+                                                it.type === "service" &&
+                                                it.id !== item.id &&
+                                                (it.description === s.name || it.serviceId === s._id)
+                                            );
+                                            return !isSelectedInOther;
+                                          })
                                       ).map((opt: any) => {
                                         if (typeof opt === "string")
                                           return (
@@ -1611,48 +1676,50 @@ export default function BookingModal({
                             )}
                           </div>
 
-                          <div className="sm:col-span-6 flex items-center gap-2">
-                            {item.type === "room" && (
-                              <div className="w-12 shrink-0">
+                          <div className="sm:col-span-6 flex flex-col sm:flex-row sm:items-center gap-2 w-full">
+                            <div className="flex items-center gap-2 flex-1 w-full">
+                              {item.type === "room" && (
+                                <div className="w-12 shrink-0">
+                                  <input
+                                    type="text"
+                                    value={item.quantity}
+                                    onChange={(e) =>
+                                      updateItem(
+                                        item.id,
+                                        "quantity",
+                                        parseInt(
+                                          e.target.value.replace(/[^0-9]/g, ""),
+                                        ) || 0,
+                                      )
+                                    }
+                                    className="w-full bg-gray-900 border border-white/10 rounded-xl py-2 outline-none focus:border-orange-600 text-[10px] text-white text-center font-bold"
+                                    title="Rooms"
+                                    placeholder="Qty"
+                                  />
+                                </div>
+                              )}
+
+                              <div className="flex-1 relative">
                                 <input
-                                  type="text"
-                                  value={item.quantity}
+                                  type="number"
+                                  value={item.price}
                                   onChange={(e) =>
                                     updateItem(
                                       item.id,
-                                      "quantity",
-                                      parseInt(
-                                        e.target.value.replace(/[^0-9]/g, ""),
-                                      ) || 0,
+                                      "price",
+                                      parseFloat(e.target.value) || 0,
                                     )
                                   }
-                                  className="w-full bg-gray-900 border border-white/10 rounded-xl py-2 outline-none focus:border-orange-600 text-[10px] text-white text-center font-bold"
-                                  title="Rooms"
-                                  placeholder="Qty"
+                                  className={`w-full bg-gray-900 border ${!item.price || item.price <= 0 ? "border-red-500/50 ring-2 ring-red-500/10" : "border-white/10"} rounded-xl pl-6 pr-2 py-2 outline-none focus:border-orange-600 text-[10px] text-white font-black text-right transition-all`}
+                                  placeholder="Rate"
+                                  required
                                 />
+                                <IndianRupee className="w-3 h-3 absolute left-2 top-1/2 -translate-y-1/2 text-orange-600" />
                               </div>
-                            )}
-
-                            <div className="flex-1 relative">
-                              <input
-                                type="number"
-                                value={item.price}
-                                onChange={(e) =>
-                                  updateItem(
-                                    item.id,
-                                    "price",
-                                    parseFloat(e.target.value) || 0,
-                                  )
-                                }
-                                className={`w-full bg-gray-900 border ${!item.price || item.price <= 0 ? "border-red-500/50 ring-2 ring-red-500/10" : "border-white/10"} rounded-xl pl-6 pr-2 py-2 outline-none focus:border-orange-600 text-[10px] text-white font-black text-right transition-all`}
-                                placeholder="Rate"
-                                required
-                              />
-                              <IndianRupee className="w-3 h-3 absolute left-2 top-1/2 -translate-y-1/2 text-orange-600" />
                             </div>
 
                             {item.applyGST ? (
-                              <div className="flex-1 flex items-center justify-between gap-3 bg-white/5 border border-white/10 rounded-xl px-3 py-2 min-w-[140px] animate-in fade-in slide-in-from-right-2">
+                              <div className="w-full sm:w-auto sm:flex-1 flex items-center justify-between gap-3 bg-white/5 border border-white/10 rounded-xl px-3 py-2 min-w-[140px] animate-in fade-in slide-in-from-right-2">
                                 <div className="flex items-center gap-1.5 flex-1">
                                   <span className="text-[8px] font-bold text-gray-500 uppercase whitespace-nowrap">
                                     GST
@@ -1691,7 +1758,7 @@ export default function BookingModal({
                                 </div>
                               </div>
                             ) : (
-                              <div className="flex-1" />
+                              <div className="hidden sm:block sm:flex-1" />
                             )}
                           </div>
                         </div>

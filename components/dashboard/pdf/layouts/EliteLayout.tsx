@@ -31,7 +31,7 @@ const EliteLayout = ({ data, settings, tw }: LayoutProps) => {
   const darkColor = "#2b3445"; // The dark navy from the image
 
   const propertyTitle = isPreview ? "SHAPESBYTES" : settings?.title || "COMPANY";
-  const tagline = isPreview ? "123, DEMO BUSINESS PARK, SECTOR 5, JODHPUR" : settings?.address?.substring(0, 50) || "Company Tagline Here";
+  const tagline = isPreview ? "123, DEMO BUSINESS PARK, SECTOR 5, JODHPUR" : settings?.address || "Company Tagline Here";
   
   const gst = isPreview ? "08ABWFA8226H1ZY" : settings?.bankDetails?.gstNumber;
   const phone = isPreview ? "+91 88902 77537" : settings?.phoneNumber;
@@ -84,19 +84,30 @@ const EliteLayout = ({ data, settings, tw }: LayoutProps) => {
                 style={tw("w-10 h-10 rounded-full object-cover")}
               />
             ) : (
-               <View style={[tw("w-40 h-10 rounded-full flex items-center justify-center"), { backgroundColor: brandColor }]}>
-                 <Text style={tw("text-white text-lg font-bold")}>{propertyTitle.charAt(0)}</Text>
+               <View style={[tw("w-10 h-10 rounded-full flex items-center justify-center"), { backgroundColor: brandColor }]}>
+                 <Text style={[tw("text-white text-lg font-bold"), { textAlign: "center", width: "100%", lineHeight: 1.2, marginTop: 1 }]}>
+                   {propertyTitle.charAt(0)}
+                 </Text>
                </View>
             )}
-            <View style={tw("w-44 space-y-0.5 mt-0.5")}>
+            <View style={[tw("space-y-0.5 mt-0.5"), { width: 170 }]}>
               <Text style={tw("text-white text-[16px] font-black uppercase tracking-wider leading-none mb-1")}>{propertyTitle}</Text>
-              {(phone || email) && (
+              {phone && (
                 <Text style={tw("text-gray-300 text-[5px] uppercase leading-none pt-0.5")}>
-                  {[phone, email].filter(Boolean).join(" | ")}
+                  Phone: {phone}
                 </Text>
               )}
-              {website && <Text style={tw("text-gray-300 text-[5px] uppercase leading-none pt-0.5")}>{website}</Text>}
-              <Text style={tw("text-gray-300 text-[5px] uppercase leading-tight mt-0.5")}>{tagline}</Text>
+              {email && (
+                <Text style={tw("text-gray-300 text-[5px] uppercase leading-none pt-0.5")}>
+                  Email: {email}
+                </Text>
+              )}
+              {website && (
+                <Text style={tw("text-gray-300 text-[5px] uppercase leading-none pt-0.5")}>
+                  Website: {website}
+                </Text>
+              )}
+              <Text style={tw("text-gray-300 text-[5px] uppercase leading-tight mt-0.5")}>Address: {tagline}</Text>
             </View>
           </View>
 
@@ -178,28 +189,41 @@ const EliteLayout = ({ data, settings, tw }: LayoutProps) => {
         {/* Table Body */}
         {((data?.rooms || []).concat(data?.services || [])).map((item: any, i: number) => (
           <View key={i} style={tw(`flex flex-row items-center border-b border-white ${i % 2 === 0 ? 'bg-gray-50' : 'bg-gray-100/50'}`)}>
-            <View style={tw("w-[10%] py-4 px-3")}><Text style={tw("text-[8px] font-black text-gray-800 text-center")}>{String(i + 1).padStart(2, '0')}</Text></View>
+            <View style={tw("w-[10%] py-1.5 px-3")}><Text style={tw("text-[8px] font-black text-gray-800 text-center")}>{String(i + 1).padStart(2, '0')}</Text></View>
             <View style={[tw("w-[1px] h-full"), { backgroundColor: '#ffffff' }]} />
-            <View style={tw("flex-1 py-3 px-3")}>
-              <Text style={tw("text-[8px] font-black text-gray-800 mb-0.5")}>{item.roomName || item.serviceName}</Text>
-              {(item.roomType || item.description) && (
-                <Text style={tw("text-[6px] text-gray-500")}>
-                  {item.roomType && item.roomType !== item.roomName ? item.roomType : (item.description || "")}
-                </Text>
-              )}
+            <View style={tw("flex-1 py-1.5 px-3")}>
+              {(() => {
+                let name = item.roomName || item.serviceName || "";
+                let extra = item.description || "";
+                if (!item.roomName && name.includes(" | ")) {
+                  const parts = name.split(" | ");
+                  name = parts[0];
+                  extra = parts[1];
+                }
+                return (
+                  <>
+                    <Text style={tw("text-[8px] font-black text-gray-800 mb-0.5")}>{name}</Text>
+                    {(item.roomType || extra) && (
+                      <Text style={tw("text-[6px] text-gray-500")}>
+                        {item.roomType && item.roomType !== item.roomName ? item.roomType : (extra || "")}
+                      </Text>
+                    )}
+                  </>
+                );
+              })()}
             </View>
             <View style={[tw("w-[1px] h-full"), { backgroundColor: '#ffffff' }]} />
-            <View style={tw("w-[12%] py-4 px-3")}><Text style={tw("text-[8px] font-black text-gray-800 text-center")}>{item.qty || data?.nights}</Text></View>
+            <View style={tw("w-[12%] py-1.5 px-3")}><Text style={tw("text-[8px] font-black text-gray-800 text-center")}>{item.qty || data?.nights}</Text></View>
             <View style={[tw("w-[1px] h-full"), { backgroundColor: '#ffffff' }]} />
-            <View style={tw("w-[18%] py-4 px-3")}><Text style={tw("text-[8px] font-black text-gray-800 text-center")}>{Number(item.rate).toFixed(2)}</Text></View>
+            <View style={tw("w-[18%] py-1.5 px-3")}><Text style={tw("text-[8px] font-black text-gray-800 text-center")}>{Number(item.rate).toFixed(2)}</Text></View>
             {hasGST && (
               <>
                 <View style={[tw("w-[1px] h-full"), { backgroundColor: '#ffffff' }]} />
-                <View style={tw("w-[12%] py-4 px-3")}><Text style={tw("text-[8px] font-black text-gray-800 text-center")}>{item.gst || 0}%</Text></View>
+                <View style={tw("w-[12%] py-1.5 px-3")}><Text style={tw("text-[8px] font-black text-gray-800 text-center")}>{item.gst || 0}%</Text></View>
               </>
             )}
             <View style={[tw("w-[1px] h-full"), { backgroundColor: '#ffffff' }]} />
-            <View style={tw("w-[18%] py-4 px-3")}><Text style={tw("text-[8px] font-black text-gray-800 text-center")}>{Number(item.total).toFixed(2)}</Text></View>
+            <View style={tw("w-[18%] py-1.5 px-3")}><Text style={tw("text-[8px] font-black text-gray-800 text-center")}>{Number(item.total).toFixed(2)}</Text></View>
           </View>
         ))}
       </View>
@@ -320,7 +344,10 @@ const EliteLayout = ({ data, settings, tw }: LayoutProps) => {
           <Text style={[tw("text-[7px] font-bold mb-2 uppercase"), { color: brandColor }]}>PAYMENT TERMS & POLICIES</Text>
           <View style={tw("space-y-1")}>
             {(isPreview ? ["Lorem ipsum dolor sit amet, consectetur adipiscing elit.","Lorem ipsum dolor sit amet, consectetur adipiscing elit.","Lorem ipsum dolor sit amet, consectetur adipiscing elit."] : settings?.paymentTerms || []).map((term: string, i: number) => (
-              <Text key={i} style={tw("text-[6px] text-gray-500 leading-relaxed")}>• {term}</Text>
+              <View key={i} style={tw("flex flex-row items-start mb-0.5")}>
+                <Text style={tw("text-[6px] text-gray-500 mr-1")}>•</Text>
+                <Text style={tw("flex-1 text-[6px] text-gray-500 leading-relaxed")}>{term}</Text>
+              </View>
             ))}
           </View>
         </View>
@@ -330,7 +357,10 @@ const EliteLayout = ({ data, settings, tw }: LayoutProps) => {
           <Text style={[tw("text-[7px] font-bold mb-2 uppercase"), { color: brandColor }]}>CANCELLATION POLICY</Text>
           <View style={tw("space-y-1")}>
             {(isPreview ? ["Nulla facilisi cras fermentum odio eu feugiat pretium nibh ipsum.","Nulla facilisi cras fermentum odio eu feugiat pretium nibh ipsum.","Nulla facilisi cras fermentum odio eu feugiat pretium nibh ipsum."] : settings?.cancellationPolicies || []).map((policy: string, i: number) => (
-              <Text key={i} style={tw("text-[6px] text-gray-500 leading-relaxed")}>• {policy}</Text>
+              <View key={i} style={tw("flex flex-row items-start mb-0.5")}>
+                <Text style={tw("text-[6px] text-gray-500 mr-1")}>•</Text>
+                <Text style={tw("flex-1 text-[6px] text-gray-500 leading-relaxed")}>{policy}</Text>
+              </View>
             ))}
           </View>
         </View>

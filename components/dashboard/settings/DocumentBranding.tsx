@@ -206,12 +206,12 @@ export default function DocumentBranding({
                       type="color"
                       value={pdfColor || "#ea580c"}
                       onChange={(e) => setPdfColor(e.target.value)}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
                     />
                     {!["#ea580c", "#0369a1", "#1e3a8a", "#15803d", "#7f1d1d", "#4c1d95", "#0f172a"].includes(pdfColor?.toLowerCase()) ? (
-                      <Check className="w-5 h-5 text-white drop-shadow-md z-10 animate-in zoom-in-50 duration-300" />
+                      <Check className="w-5 h-5 text-white drop-shadow-md z-10 pointer-events-none animate-in zoom-in-50 duration-300" />
                     ) : (
-                      <Palette className="w-5 h-5 text-white drop-shadow-md z-10 animate-pulse duration-1000" />
+                      <Palette className="w-5 h-5 text-white drop-shadow-md z-10 pointer-events-none animate-pulse duration-1000" />
                     )}
                   </div>
                   <div className="flex flex-col">

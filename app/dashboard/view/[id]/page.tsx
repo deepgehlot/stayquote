@@ -382,14 +382,27 @@ export default function BookingDetailsPage() {
                   <tr key={i} className="hover:bg-slate-50/50 transition-colors">
                     <td className="py-4 text-center font-bold text-gray-400 text-xs">{i + 1}</td>
                     <td className="py-4 px-4">
-                      <p className="font-bold text-slate-800 text-sm">
-                        {item.roomName || item.serviceName}
-                      </p>
-                      {item.description && (
-                        <p className="text-[10px] text-gray-400 mt-0.5 leading-normal max-w-sm">
-                          {item.description}
-                        </p>
-                      )}
+                      {(() => {
+                        let name = item.roomName || item.serviceName || "";
+                        let extra = item.description || "";
+                        if (!item.roomName && name.includes(" | ")) {
+                          const parts = name.split(" | ");
+                          name = parts[0];
+                          extra = parts[1];
+                        }
+                        return (
+                          <>
+                            <p className="font-bold text-slate-800 text-sm">
+                              {name}
+                            </p>
+                            {(item.roomType || extra) && (
+                              <p className="text-[10px] text-gray-400 mt-0.5 leading-normal max-w-sm">
+                                {extra}
+                              </p>
+                            )}
+                          </>
+                        );
+                      })()}
                     </td>
                     <td className="py-4 px-2 text-center font-semibold text-slate-955 text-sm">
                       {item.qty || booking.nights || 1}

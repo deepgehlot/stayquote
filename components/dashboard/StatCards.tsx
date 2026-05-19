@@ -13,7 +13,7 @@ interface StatCardProps {
 
 const StatCard = ({ number, label, Icon, reversed }: StatCardProps) => (
   <div
-    className={`relative flex items-center w-full group cursor-pointer ${reversed ? "flex-row-reverse md:flex-row" : ""}`}
+    className={`relative flex items-center w-full max-w-[230px] sm:max-w-[270px] mx-auto group cursor-pointer ${reversed ? "flex-row-reverse md:flex-row" : ""}`}
   >
     <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-orange-500 flex items-center justify-center text-white text-xl sm:text-2xl font-bold shadow-lg z-10 relative border-[4px] border-gray-50 flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
       {number}
