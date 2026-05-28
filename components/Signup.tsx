@@ -1,20 +1,32 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Lock, User, ShieldCheck } from "lucide-react";
+import { Eye, EyeOff, Lock, User, Gift, ShieldCheck } from "lucide-react";
+import Swal from "sweetalert2";
 
 import { getApiUrl } from "@/lib/api";
 
-export default function Login() {
+export default function Signup() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const refParam = searchParams.get("ref") || "";
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [referBy, setReferBy] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Set the referral code from the query parameters if present
+  useEffect(() => {
+    if (refParam) {
+      setReferBy(refParam);
+    }
+  }, [refParam]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,69 +34,32 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-
-      const response = await fetch(getApiUrl("signin"), {
+      const response = await fetch(getApiUrl("signup"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({
+          username,
+          password,
+          referBy: referBy.trim() || undefined, // Send undefined or empty string, backend standard
+        }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Invalid credentials");
+        throw new Error(data.message || "Failed to create account");
       }
 
-      // Store the token and user ID for future authenticated requests
-      if (data.token) {
-        localStorage.setItem("authToken", data.token);
-        // Set cookie for middleware access (valid for 7 days)
-        document.cookie = `authToken=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
-        
-        // Store user login timestamp for the 24-hour trial period if not already set
-        if (!localStorage.getItem("loginTimestamp")) {
-          localStorage.setItem("loginTimestamp", Date.now().toString());
-        }
-      }
-      if (data.user && data.user._id) {
-        localStorage.setItem("userId", data.user._id);
-        document.cookie = `userId=${data.user._id}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
-      } else if (data.userId) {
-        localStorage.setItem("userId", data.userId);
-        document.cookie = `userId=${data.userId}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
-      }
+      // Show beautiful success popup
+      await Swal.fire({
+        title: "Account Created!",
+        text: "Your stayquote account has been created successfully. Please sign in to start your trial.",
+        icon: "success",
+        confirmButtonColor: "#ea580c",
+        confirmButtonText: "Sign In Now",
+      });
 
-      // Fetch and cache the new user's specific settings immediately on login
-      try {
-        const settingsRes = await fetch(getApiUrl("settings"), {
-          headers: { Authorization: `Bearer ${data.token}` },
-        });
-        if (settingsRes.ok) {
-          const settingsData = await settingsRes.json();
-          const allSettings = settingsData.settings || settingsData;
-          let userSettings = null;
-          if (Array.isArray(allSettings)) {
-            userSettings = allSettings.length > 0 ? allSettings[allSettings.length - 1] : null;
-          } else {
-            userSettings = allSettings;
-          }
-          if (userSettings) {
-            localStorage.setItem("propertyTitle", userSettings.title || "System Admin");
-            const logo = userSettings.profilePicture || userSettings.logo || "";
-            if (logo) {
-              localStorage.setItem("propertyLogo", logo);
-              localStorage.setItem("profilePicture", logo);
-            } else {
-              localStorage.removeItem("propertyLogo");
-              localStorage.removeItem("profilePicture");
-            }
-          }
-        }
-      } catch (settingsErr) {
-        console.error("Failed to pre-cache settings on login:", settingsErr);
-      }
-
-      router.push("/dashboard");
+      router.push("/login");
     } catch (err: any) {
       setError(err.message || "Something went wrong. Please try again.");
     } finally {
@@ -126,7 +101,7 @@ export default function Login() {
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="w-full max-w-5xl min-h-[520px] lg:h-[520px] bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] relative overflow-hidden flex flex-col lg:flex-row border border-gray-100"
+        className="w-full max-w-5xl min-h-[580px] lg:h-[580px] bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] relative overflow-hidden flex flex-col lg:flex-row border border-gray-100"
       >
         {/* Diagonal Background Split */}
         <div
@@ -155,28 +130,28 @@ export default function Login() {
               System Admin
             </h1>
             <p className="text-orange-600/70 text-sm font-bold tracking-widest uppercase">
-              Secure Dashboard Access
+              Join stayquote Today
             </p>
           </motion.div>
         </div>
 
-        {/* --- Right Side: Login Form --- */}
+        {/* --- Right Side: Register Form --- */}
         <div className="relative z-10 w-full lg:w-[60%] flex-1 h-auto lg:h-full flex flex-col justify-center bg-orange-600 lg:bg-transparent px-8 sm:px-12 py-12 lg:py-0 lg:pl-12 lg:pr-16 xl:pl-16 xl:pr-24 rounded-t-[2.5rem] lg:rounded-none">
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <div className="mb-8 text-center">
-              <h2 className="text-3xl text-white mb-2">
-                Welcome Back
+            <div className="mb-6 text-center">
+              <h2 className="text-3xl font-semibold text-white mb-1">
+                Create Account
               </h2>
               <p className="text-white/80 text-sm">
-                Please sign in to your administrator account
+                Get started with your free 14-day premium trial
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4">
               {/* Error Message */}
               {error && (
                 <motion.div
@@ -189,7 +164,7 @@ export default function Login() {
               )}
 
               {/* Username Field */}
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <label className="text-xs font-bold text-white uppercase tracking-widest ml-1">
                   Username
                 </label>
@@ -202,14 +177,14 @@ export default function Login() {
                     required
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="w-full bg-white text-slate-900 border border-orange-400/30 rounded-xl py-4 pl-11 pr-4 focus:outline-none focus:border-white focus:ring-4 focus:ring-white/10 transition-all shadow-sm"
+                    className="w-full bg-white text-slate-900 border border-orange-400/30 rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:border-white focus:ring-4 focus:ring-white/10 transition-all shadow-sm text-sm"
                     placeholder="Enter username"
                   />
                 </div>
               </div>
 
               {/* Password Field */}
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <label className="text-xs font-bold text-white uppercase tracking-widest ml-1">
                   Password
                 </label>
@@ -222,7 +197,7 @@ export default function Login() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-white text-slate-900 border border-orange-400/30 rounded-xl py-4 pl-11 pr-12 focus:outline-none focus:border-white focus:ring-4 focus:ring-white/10 transition-all shadow-sm"
+                    className="w-full bg-white text-slate-900 border border-orange-400/30 rounded-xl py-3 pl-11 pr-12 focus:outline-none focus:border-white focus:ring-4 focus:ring-white/10 transition-all shadow-sm text-sm"
                     placeholder="••••••••"
                   />
                   <button
@@ -239,24 +214,43 @@ export default function Login() {
                 </div>
               </div>
 
-              {/* Submit Button */}
-              <div className="pt-4 flex flex-col items-center justify-center gap-3">
+              {/* Referral Code Field (Optional) */}
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-white uppercase tracking-widest ml-1 flex items-center gap-1.5">
+                  Referral Code <span className="text-white/50 lowercase italic">(optional)</span>
+                </label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Gift className="h-4 w-4 text-orange-200 group-focus-within:text-orange-600 transition-colors" />
+                  </div>
+                  <input
+                    type="text"
+                    value={referBy}
+                    onChange={(e) => setReferBy(e.target.value)}
+                    className="w-full bg-white text-slate-900 border border-orange-400/30 rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:border-white focus:ring-4 focus:ring-white/10 transition-all shadow-sm text-sm"
+                    placeholder="Enter referral code"
+                  />
+                </div>
+              </div>
+
+              {/* Submit Button & Sign In Link */}
+              <div className="pt-2 flex flex-col items-center justify-center gap-2">
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-48 bg-gray-900 hover:bg-black text-white font-black uppercase tracking-widest rounded-xl py-4 px-4 flex items-center justify-center transition-all duration-300 shadow-xl hover:shadow-black/20 hover:-translate-y-0.5 disabled:opacity-70 disabled:hover:translate-y-0"
+                  className="w-48 bg-gray-900 hover:bg-black text-white font-black uppercase tracking-widest rounded-xl py-3.5 px-4 flex items-center justify-center transition-all duration-300 shadow-xl hover:shadow-black/20 hover:-translate-y-0.5 disabled:opacity-70 disabled:hover:translate-y-0 text-sm cursor-pointer"
                 >
                   {isLoading ? (
                     <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   ) : (
-                    <span>Sign In</span>
+                    <span>Sign Up</span>
                   )}
                 </button>
 
                 <p className="text-white/60 text-xs mt-2">
-                  Don&apos;t have an account?{" "}
-                  <Link href="/signup" className="text-white hover:text-orange-200 underline font-bold transition-colors">
-                    Sign Up
+                  Already have an account?{" "}
+                  <Link href="/login" className="text-white hover:text-orange-200 underline font-bold transition-colors">
+                    Sign In
                   </Link>
                 </p>
               </div>

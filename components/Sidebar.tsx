@@ -25,6 +25,7 @@ const navItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Quotations", href: "/dashboard/quotations", icon: FileText },
   { name: "Reservations", href: "/dashboard/reservations", icon: Calendar },
+  { name: "Subscriptions", href: "/dashboard/subscribe", icon: CreditCard },
 ];
 
 const settingsItems = [

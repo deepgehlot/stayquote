@@ -2,6 +2,8 @@ import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import { cookies } from "next/headers";
 import { getApiUrl } from "@/lib/api";
+import SubscriptionGuard from "@/components/SubscriptionGuard";
+import { Suspense } from "react";
 
 async function getLayoutData() {
   const cookieStore = await cookies();
@@ -41,7 +43,11 @@ export default async function DashboardLayout({
         <Header />
         <main className="flex-1 overflow-y-auto p-6">
           <div className="max-w-7xl mx-auto">
-            {children}
+            <Suspense fallback={<div className="animate-pulse h-96 bg-white rounded-3xl" />}>
+              <SubscriptionGuard>
+                {children}
+              </SubscriptionGuard>
+            </Suspense>
           </div>
         </main>
       </div>
