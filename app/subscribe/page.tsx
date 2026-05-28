@@ -73,7 +73,7 @@ export default function SubscribePage() {
 
       // 2. Configure Razorpay Options
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_YOUR_KEY", // Will pull from .env.local if set
+        key: process.env.RAZORPAY_KEY_ID || "rzp_test_YOUR_KEY", // Will pull from .env.local if set
         subscription_id: subscriptionId,
         name: "StayQuote Premium",
         description: "Monthly Unlimited Subscription Plan",
