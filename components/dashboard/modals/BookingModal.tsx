@@ -69,6 +69,8 @@ export default function BookingModal({
     kids: 0,
     checkIn: "",
     checkOut: "",
+    checkInTime: "14:00",
+    checkOutTime: "11:00",
     nights: 1,
     advance: 0,
   });
@@ -90,6 +92,15 @@ export default function BookingModal({
   const [isSaving, setIsSaving] = useState(false);
   const [fullSettings, setFullSettings] = useState<any>(null);
   const [lastAddedId, setLastAddedId] = useState<string | null>(null);
+  const [isCasaUser, setIsCasaUser] = useState(false);
+
+  useEffect(() => {
+    const user = localStorage.getItem("username");
+    const propertyTitle = localStorage.getItem("propertyTitle");
+    if (user === "CasaConcreto" || propertyTitle?.replace(/\s+/g, '').toLowerCase() === "casaconcreto") {
+      setIsCasaUser(true);
+    }
+  }, []);
 
   // Smooth scroll to newly added item
   useEffect(() => {
@@ -151,6 +162,8 @@ export default function BookingModal({
         checkOut: initialData.checkOut
           ? new Date(initialData.checkOut).toISOString().split("T")[0]
           : "",
+        checkInTime: initialData.checkInTime || (initialData.checkIn && initialData.checkIn.includes("T") ? initialData.checkIn.split("T")[1].substring(0, 5) : "14:00"),
+        checkOutTime: initialData.checkOutTime || (initialData.checkOut && initialData.checkOut.includes("T") ? initialData.checkOut.split("T")[1].substring(0, 5) : "11:00"),
         nights: initialData.nights || 1,
         advance: initialData.payment?.advancePaid || 0,
       });
@@ -215,6 +228,8 @@ export default function BookingModal({
         kids: 0,
         checkIn: "",
         checkOut: "",
+        checkInTime: "14:00",
+        checkOutTime: "11:00",
         nights: 1,
         advance: 0,
       });
@@ -739,8 +754,10 @@ export default function BookingModal({
         clientName: formData.clientName,
         clientEmail: formData.email,
         clientContact: formData.contact,
-        checkIn: formData.checkIn ? `${formData.checkIn}T11:00:00` : new Date().toISOString(),
-        checkOut: formData.checkOut ? `${formData.checkOut}T11:00:00` : new Date().toISOString(),
+        checkIn: formData.checkIn ? `${formData.checkIn}T${formData.checkInTime}:00` : new Date().toISOString(),
+        checkOut: formData.checkOut ? `${formData.checkOut}T${formData.checkOutTime}:00` : new Date().toISOString(),
+        checkInTime: formData.checkInTime,
+        checkOutTime: formData.checkOutTime,
         nights: formData.nights,
         guests: {
           adults: formData.adults || 1,
@@ -1299,7 +1316,7 @@ export default function BookingModal({
                 </h3>
               </div>
 
-              <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className={`md:col-span-2 grid grid-cols-1 ${isCasaUser ? 'md:grid-cols-5' : 'md:grid-cols-3'} gap-6`}>
                 <div className="space-y-2">
                   <label className="text-sm text-gray-400 ml-1 font-medium">
                     Check-in Date
@@ -1313,6 +1330,20 @@ export default function BookingModal({
                     className="w-full bg-gray-800/50 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-orange-600 focus:ring-4 focus:ring-orange-600/10 transition-all text-white"
                   />
                 </div>
+                {isCasaUser && (
+                  <div className="space-y-2">
+                    <label className="text-sm text-gray-400 ml-1 font-medium">
+                      Check-in Time
+                    </label>
+                    <input
+                      type="time"
+                      id="checkInTime"
+                      value={formData.checkInTime}
+                      onChange={handleInputChange}
+                      className="w-full bg-gray-800/50 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-orange-600 focus:ring-4 focus:ring-orange-600/10 transition-all text-white"
+                    />
+                  </div>
+                )}
                 <div className="space-y-2">
                   <label className="text-sm text-gray-400 ml-1 font-medium">
                     Check-out Date
@@ -1326,9 +1357,23 @@ export default function BookingModal({
                     className="w-full bg-gray-800/50 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-orange-600 focus:ring-4 focus:ring-orange-600/10 transition-all text-white"
                   />
                 </div>
+                {isCasaUser && (
+                  <div className="space-y-2">
+                    <label className="text-sm text-gray-400 ml-1 font-medium">
+                      Check-out Time
+                    </label>
+                    <input
+                      type="time"
+                      id="checkOutTime"
+                      value={formData.checkOutTime}
+                      onChange={handleInputChange}
+                      className="w-full bg-gray-800/50 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-orange-600 focus:ring-4 focus:ring-orange-600/10 transition-all text-white"
+                    />
+                  </div>
+                )}
                 <div className="space-y-2">
                   <label className="text-sm text-gray-400 ml-1 font-medium">
-                    No. of Nights (Auto)
+                    No. of Nights
                   </label>
                   <input
                     type="number"

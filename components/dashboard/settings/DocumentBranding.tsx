@@ -34,6 +34,19 @@ export default function DocumentBranding({
   isSaving,
   onSave,
 }: DocumentBrandingProps) {
+  const [isCasaUser, setIsCasaUser] = React.useState(false);
+
+  React.useEffect(() => {
+    const user = localStorage.getItem("username");
+    const propertyTitle = localStorage.getItem("propertyTitle");
+    if (user === "CasaConcreto" || propertyTitle?.replace(/\s+/g, '').toLowerCase() === "casaconcreto") {
+      setIsCasaUser(true);
+      if (pdfLayout !== "CasaConcreto") {
+        setPdfLayout("CasaConcreto");
+      }
+    }
+  }, [pdfLayout, setPdfLayout]);
+
   return (
     <section id="system">
       <div className="bg-white border border-slate-100 rounded-[2rem] p-5 md:p-12 shadow-2xl shadow-slate-200/50 relative overflow-hidden">
@@ -99,17 +112,18 @@ export default function DocumentBranding({
                 <h3 className="text-lg font-bold text-slate-900 tracking-tight">PDF Layout Style</h3>
                 <p className="text-sm text-slate-500 font-medium leading-relaxed">Choose the aesthetic framework for your generated documents.</p>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className={isCasaUser ? "flex gap-6" : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"}>
                 {[
                   { id: "Modern", name: "Modern Minimal", desc: "Clean & Simple" },
                   { id: "Classic", name: "Classic Corporate", desc: "Professional & Sharp" },
                   { id: "Signature", name: "Signature Luxury", desc: "Elegant & Premium" },
                   { id: "Elite", name: "Elite Royal", desc: "High-End & Asymmetric" },
-                ].map((layout) => (
+                  { id: "CasaConcreto", name: "Casa Concreto", desc: "Premium 2-Page Layout" },
+                ].filter(layout => isCasaUser ? layout.id === "CasaConcreto" : layout.id !== "CasaConcreto").map((layout) => (
                   <div
                     key={layout.id}
                     onClick={() => setPdfLayout(layout.id)}
-                    className={`group relative p-6 sm:p-5 lg:p-6 rounded-[2rem] border-2 cursor-pointer transition-all duration-500 ${
+                    className={`group relative p-6 sm:p-5 lg:p-6 rounded-[2rem] border-2 cursor-pointer transition-all duration-500 ${isCasaUser ? "w-full sm:w-72" : ""} ${
                       pdfLayout === layout.id
                         ? "bg-orange-50/30 border-orange-600 border-r-4 border-r-orange-600 shadow-2xl shadow-orange-600/10 scale-[1.02]"
                         : "bg-white border-slate-100 border-r-4 border-r-slate-100 hover:border-slate-200 hover:border-r-orange-500/50"
@@ -172,55 +186,57 @@ export default function DocumentBranding({
               </div>
             </div>
 
-            <div className="md:col-span-2 space-y-8">
-              <div className="space-y-1">
-                <h3 className="text-lg font-bold text-slate-900 tracking-tight">PDF Accent Color</h3>
-                <p className="text-sm text-slate-500 font-medium leading-relaxed">Select the primary color used for accents and highlights in your documents.</p>
-              </div>
-              <div className="flex flex-wrap items-center gap-4 p-5 bg-slate-50 rounded-[2rem] border border-slate-100">
-                {["#ea580c", "#0369a1", "#1e3a8a", "#15803d", "#7f1d1d", "#4c1d95", "#0f172a"].map((color) => (
-                  <button
-                    key={color}
-                    onClick={() => setPdfColor(color)}
-                    className={`w-10 h-10 rounded-full border-2 cursor-pointer transition-all hover:scale-110 active:scale-95 shadow-md flex items-center justify-center ${pdfColor?.toLowerCase() === color.toLowerCase() ? "border-white ring-2 ring-orange-500/30 scale-110 shadow-lg shadow-black/20" : "border-transparent hover:border-white/50"}`}
-                    style={{ backgroundColor: color }}
-                  >
-                    {pdfColor?.toLowerCase() === color.toLowerCase() && (
-                      <Check className="w-5 h-5 text-white drop-shadow-md animate-in zoom-in-50 duration-300" />
-                    )}
-                  </button>
-                ))}
+            {!isCasaUser && (
+              <div className="md:col-span-2 space-y-8">
+                <div className="space-y-1">
+                  <h3 className="text-lg font-bold text-slate-900 tracking-tight">PDF Accent Color</h3>
+                  <p className="text-sm text-slate-500 font-medium leading-relaxed">Select the primary color used for accents and highlights in your documents.</p>
+                </div>
+                <div className="flex flex-wrap items-center gap-4 p-5 bg-slate-50 rounded-[2rem] border border-slate-100">
+                  {["#ea580c", "#0369a1", "#1e3a8a", "#15803d", "#7f1d1d", "#4c1d95", "#0f172a"].map((color) => (
+                    <button
+                      key={color}
+                      onClick={() => setPdfColor(color)}
+                      className={`w-10 h-10 rounded-full border-2 cursor-pointer transition-all hover:scale-110 active:scale-95 shadow-md flex items-center justify-center ${pdfColor?.toLowerCase() === color.toLowerCase() ? "border-white ring-2 ring-orange-500/30 scale-110 shadow-lg shadow-black/20" : "border-transparent hover:border-white/50"}`}
+                      style={{ backgroundColor: color }}
+                    >
+                      {pdfColor?.toLowerCase() === color.toLowerCase() && (
+                        <Check className="w-5 h-5 text-white drop-shadow-md animate-in zoom-in-50 duration-300" />
+                      )}
+                    </button>
+                  ))}
 
-                {/* Custom Color Picker */}
-                <div className="flex items-center gap-3 pl-4 border-l border-slate-200">
-                  <div 
-                    className="relative group/picker w-10 h-10 rounded-full border border-slate-200 shadow-md overflow-hidden transition-all hover:scale-110 active:scale-95 flex items-center justify-center cursor-pointer"
-                    style={{ 
-                      background: !["#ea580c", "#0369a1", "#1e3a8a", "#15803d", "#7f1d1d", "#4c1d95", "#0f172a"].includes(pdfColor?.toLowerCase()) 
-                        ? pdfColor 
-                        : "linear-gradient(135deg, #ff0055, #00ffcc, #9900ff)" 
-                    }}
-                    title="Choose Custom Color"
-                  >
-                    <input
-                      type="color"
-                      value={pdfColor || "#ea580c"}
-                      onChange={(e) => setPdfColor(e.target.value)}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
-                    />
-                    {!["#ea580c", "#0369a1", "#1e3a8a", "#15803d", "#7f1d1d", "#4c1d95", "#0f172a"].includes(pdfColor?.toLowerCase()) ? (
-                      <Check className="w-5 h-5 text-white drop-shadow-md z-10 pointer-events-none animate-in zoom-in-50 duration-300" />
-                    ) : (
-                      <Palette className="w-5 h-5 text-white drop-shadow-md z-10 pointer-events-none animate-pulse duration-1000" />
-                    )}
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Custom Color</span>
-                    <span className="text-xs font-black text-slate-700 tracking-wider uppercase">{pdfColor || "#ea580c"}</span>
+                  {/* Custom Color Picker */}
+                  <div className="flex items-center gap-3 pl-4 border-l border-slate-200">
+                    <div 
+                      className="relative group/picker w-10 h-10 rounded-full border border-slate-200 shadow-md overflow-hidden transition-all hover:scale-110 active:scale-95 flex items-center justify-center cursor-pointer"
+                      style={{ 
+                        background: !["#ea580c", "#0369a1", "#1e3a8a", "#15803d", "#7f1d1d", "#4c1d95", "#0f172a"].includes(pdfColor?.toLowerCase()) 
+                          ? pdfColor 
+                          : "linear-gradient(135deg, #ff0055, #00ffcc, #9900ff)" 
+                      }}
+                      title="Choose Custom Color"
+                    >
+                      <input
+                        type="color"
+                        value={pdfColor || "#ea580c"}
+                        onChange={(e) => setPdfColor(e.target.value)}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+                      />
+                      {!["#ea580c", "#0369a1", "#1e3a8a", "#15803d", "#7f1d1d", "#4c1d95", "#0f172a"].includes(pdfColor?.toLowerCase()) ? (
+                        <Check className="w-5 h-5 text-white drop-shadow-md z-10 pointer-events-none animate-in zoom-in-50 duration-300" />
+                      ) : (
+                        <Palette className="w-5 h-5 text-white drop-shadow-md z-10 pointer-events-none animate-pulse duration-1000" />
+                      )}
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Custom Color</span>
+                      <span className="text-xs font-black text-slate-700 tracking-wider uppercase">{pdfColor || "#ea580c"}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
 
           <div className="pt-4 md:pt-5 border-t border-slate-50 flex justify-center md:justify-end">

@@ -38,6 +38,7 @@ export default function Login() {
       // Store the token and user ID for future authenticated requests
       if (data.token) {
         localStorage.setItem("authToken", data.token);
+        localStorage.setItem("username", username);
         // Set cookie for middleware access (valid for 7 days)
         document.cookie = `authToken=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
         

@@ -6,6 +6,7 @@ import ModernLayout from './layouts/ModernLayout';
 import ClassicLayout from './layouts/ClassicLayout';
 import SignatureLayout from './layouts/SignatureLayout';
 import EliteLayout from './layouts/EliteLayout';
+import CasaConcretoLayout from './layouts/CasaConcretoLayout';
 
 // Initialize a base Tailwind instance
 export const tw = createTw({
@@ -38,6 +39,18 @@ const PDFWrapper = ({ data, settings }: PDFWrapperProps) => {
     },
   }), [accentColor]);
 
+  const reference = data?.bookingId || data?.reference || (data?.type || 'DOC').toUpperCase();
+  const docTitle = `${reference} - ${(data?.clientName || 'GUEST').toUpperCase()}`;
+
+  // CasaConcreto manages its own <Page> components internally (multi-page layout)
+  if (layout === 'CasaConcreto') {
+    return (
+      <Document title={docTitle}>
+        <CasaConcretoLayout data={data} settings={settings} tw={dynamicTw} />
+      </Document>
+    );
+  }
+
   const renderLayout = () => {
     const props = { data, settings, tw: dynamicTw };
     switch (layout) {
@@ -52,9 +65,6 @@ const PDFWrapper = ({ data, settings }: PDFWrapperProps) => {
         return <ModernLayout {...props} />;
     }
   };
-
-  const reference = data?.bookingId || data?.reference || (data?.type || 'DOC').toUpperCase();
-  const docTitle = `${reference} - ${(data?.clientName || 'GUEST').toUpperCase()}`;
 
   return (
     <Document title={docTitle}>
